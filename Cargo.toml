@@ -1,0 +1,7 @@
+[workspace]
+resolver = "2"
+members = [ "dstu4145-rust",
+    "rust-ec"
+]
+
+#[dependencies]
