@@ -1,7 +1,5 @@
 [workspace]
 resolver = "2"
-members = [ "dstu4145-rust",
-    "rust-ec"
-]
+members = [ "dstu4145-rust", "poly_algebra", "rust-ec", "utils"]
 
 #[dependencies]
