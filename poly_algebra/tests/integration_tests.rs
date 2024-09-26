@@ -2,8 +2,8 @@
 mod tests {
   use num_bigint::BigUint;
   use num_traits::{Num, Zero};
-  use poly_algebra::gf::gf239::GF239;
   use poly_algebra::gf::gf_def::GFArithmetic;
+  use poly_algebra::gf::gf_impl::GF239;
   use poly_algebra::helpers::to_binary_be;
 
   // todo: generate with macros test implementation of GF4

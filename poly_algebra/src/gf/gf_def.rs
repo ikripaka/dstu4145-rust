@@ -2,10 +2,11 @@ use std::fmt;
 use std::hash::Hash;
 use std::ops::{Add, Mul};
 use num_bigint::BigUint;
-use crate::gf::gf239::GF239;
-use crate::gf_arithmetic::multiplication::{inverse, mul, pow, square};
+use crate::gf_arithmetic::multiplication::{inverse, pow, square};
 use crate::gf_arithmetic::trace::{htrace, trace};
 use crate::helpers::{to_binary_be, to_binary_le, to_lower_hex_be, to_lower_hex_le, to_upper_hex_be, to_upper_hex_le};
+
+pub(crate) use private::GFFactory;
 
 mod private {
   use num_bigint::BigUint;
@@ -17,9 +18,6 @@ mod private {
     fn create_prime_poly() -> BigUint;
   }
 }
-
-pub(crate) use private::GFFactory;
-use crate::gf_arithmetic::addition::add;
 
 pub trait GFArithmetic<'a>:
   Hash

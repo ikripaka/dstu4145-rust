@@ -1,4 +1,5 @@
 use num_bigint::BigUint;
+use num_traits::{One, Zero};
 
 pub fn get_string_array_plain<T: AsRef<str>>(s: &T) -> String {
   let mut res = String::from(s.as_ref());
@@ -72,4 +73,12 @@ pub fn to_upper_hex_le(x: &BigUint) -> String {
 }
 pub fn to_upper_hex_be(x: &BigUint) -> String {
   to_lower_hex_be(x).to_uppercase()
+}
+
+pub(crate) fn create_prime_polynomial<T: AsRef<[u32]>>(degs: &T) -> BigUint {
+  let mut prime_poly = BigUint::zero();
+  for deg in degs.as_ref() {
+    prime_poly ^= BigUint::one() << *deg;
+  }
+  prime_poly
 }
