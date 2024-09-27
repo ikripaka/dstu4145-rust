@@ -1,14 +1,16 @@
 #[cfg(test)]
-mod tests {
+mod tests
+{
   use num_bigint::BigUint;
-  use num_traits::{Num, Zero};
+  use num_traits::{Num, One, Zero};
   use poly_algebra::gf::gf_def::GFArithmetic;
-  use poly_algebra::gf::gf_impl::GF239;
+  use poly_algebra::gf::gf_impl::{ObjSafeArithm, GF239, GF3};
   use poly_algebra::helpers::to_binary_be;
 
   // todo: generate with macros test implementation of GF4
   #[test]
-  fn prime_poly_test() {
+  fn prime_poly_test()
+  {
     // assert_eq!(GF163::zero().get_prime_poly(), BigUint::from_str_radix("" ,16).unwrap());
     // assert_eq!(GF167::zero().get_prime_poly(), BigUint::from_str_radix("" ,16).unwrap());
     // assert_eq!(GF173::zero().get_prime_poly(), BigUint::from_str_radix("" ,16).unwrap());
@@ -27,7 +29,10 @@ mod tests {
   }
 
   #[test]
-  fn multiplication_test() {
+  fn multiplication_test()
+  {
+    let mut x : Box<dyn ObjSafeArithm> = Box::new(GF3::one());
+    x = Box::new(GF3::one());
     {
       let a = GF239::from(
         BigUint::from_str_radix(
@@ -45,8 +50,8 @@ mod tests {
       );
       assert_eq!(&b * &a, &a * &b)
     }
-    let mut a = GF239::from(BigUint::from_str_radix("2", 16).unwrap());
-    let b = GF239::from(BigUint::from_str_radix("2", 16).unwrap());
+    let mut a = GF3::from(BigUint::from_str_radix("2", 16).unwrap());
+    let b = GF3::from(BigUint::from_str_radix("2", 16).unwrap());
     println!(
       "num: {}, a^5: {}, a*a: {}, trace: {}, htrace: {}, pow^7: {}",
       a.to_binary_be(),
@@ -56,7 +61,8 @@ mod tests {
       to_binary_be(&a.htrace()),
       a.pow(123_u128).to_binary_be()
     );
-    for _ in 0..15 {
+    for _ in 0 .. 15
+    {
       a = &a * &b;
       println!(
         "num: {}, a^5: {}, a*a: {}, trace: {}, htrace: {}, pow^7: {}, inverse: {}, inverse_check: {}",
@@ -79,7 +85,8 @@ mod tests {
     // }
   }
   #[test]
-  fn associativity_test() {
+  fn associativity_test()
+  {
     {
       let a = GF239::from(BigUint::from(0x00000000FF112233_u128));
       let b = GF239::from(BigUint::from(0xAABBCCDD00000000_u128));
@@ -96,7 +103,8 @@ mod tests {
   fn htrace_test() {}
 
   #[test]
-  fn inverse_test() {
+  fn inverse_test()
+  {
     let a = GF239::from(
       BigUint::from_str_radix(
         "42A7D756D70E1C9BA62D2CB43707C35204EF3C67CA42A7D756D70E1C9BA62D2CB43707C35204EF3C67CA",
@@ -110,7 +118,8 @@ mod tests {
   }
 
   #[test]
-  fn test1() {
+  fn test1()
+  {
     {
       let a = GF239::from(
         BigUint::from_str_radix(

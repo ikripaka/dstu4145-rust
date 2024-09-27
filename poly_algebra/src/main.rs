@@ -3,15 +3,18 @@ use num_traits::{Num, One, Zero};
 use poly_algebra::gf::gf_impl::GF239;
 use poly_algebra::helpers::to_binary_be;
 
-fn create_prime_polynomial<T: AsRef<[u32]>>(degs: &T) -> BigUint {
+fn create_prime_polynomial<T : AsRef<[u32]>>(degs : &T) -> BigUint
+{
   let mut prime_poly = BigUint::zero();
-  for deg in degs.as_ref() {
+  for deg in degs.as_ref()
+  {
     prime_poly ^= BigUint::one() << *deg;
   }
   prime_poly
 }
 
-fn main() {
+fn main()
+{
   {
     let a = GF239::from(create_prime_polynomial(&[239, 15, 3, 2, 1, 0]));
     println!("{}", to_binary_be(&a.poly))

@@ -1,5 +1,13 @@
 [workspace]
 resolver = "2"
-members = [ "dstu4145-rust", "poly_algebra", "rust-ec", "utils"]
+members = ["dstu4145-rust", "poly_algebra", "rust-ec", "utils"]
 
-#[dependencies]
+[workspace.dependencies]
+num-traits = "0.2"
+num-bigint = "0.4.6"
+poly_algebra = { path = "./poly_algebra" }
+rust-ec = { path = "./rust-ec" }
+utils = { path = "./utils" }
+signature = "2.2.0"
+thiserror = "1.0.64"
+getset = "0.1.3"
