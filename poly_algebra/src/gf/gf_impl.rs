@@ -5,7 +5,7 @@ use num_bigint::BigUint;
 use num_traits::{One, Zero};
 use crate::{
   helpers::{create_prime_polynomial, to_binary_be, to_lower_hex_be, to_upper_hex_be},
-  gf::gf_def::{GFArithmetic, GFFactory},
+  gf::gf_def::{GFArithmetic, GFFactory, GFArithmeticObjSafe, GFDisplay, GFFactoryObjSafe, GFGetters},
   gf_arithmetic::{
     addition::add,
     multiplication::{mul},
@@ -13,7 +13,6 @@ use crate::{
   },
   impl_gf_for_poly, impl_gf_display, impl_gf_conversions, impl_obj_safe_gf_for_poly,
 };
-use crate::gf::gf_def::{GFArithmeticObjSafe, GFDisplay, GFFactoryObjSafe, GFGetters};
 
 #[derive(Hash, Eq, PartialEq, Clone)]
 pub struct GF3

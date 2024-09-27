@@ -187,7 +187,6 @@ macro_rules! impl_gf_conversions {
   };
 }
 
-
 #[macro_export]
 macro_rules! impl_obj_safe_gf_for_poly {
   ($tn:ty, $p_poly:expr) => {
@@ -202,11 +201,15 @@ macro_rules! impl_obj_safe_gf_for_poly {
     {
       fn one() -> Box<Self> { Box::new(<Self as num_traits::One>::one()) }
 
+      fn is_one(&self) -> bool { <Self as num_traits::One>::is_one(self) }
+
       fn zero() -> Box<Self> { Box::new(<Self as num_traits::Zero>::zero()) }
 
-      fn add(&self, other : &Self) -> Box<Self> { Box::new(self + other) }
+      fn is_zero(&self) -> bool { <Self as num_traits::Zero>::is_zero(self) }
 
-      fn mul(&self, other : &Self) -> Box<Self> { Box::new(self * other) }
+      fn add(self, other : &Self) -> Box<Self> { Box::new(self + other) }
+
+      fn mul(self, other : &Self) -> Box<Self> { Box::new(self * other) }
     }
   };
 }

@@ -3,22 +3,21 @@ mod tests
 {
   use num_bigint::BigUint;
   use num_traits::{Num, One};
-  use poly_algebra::gf::gf_impl::GF3;
+  use poly_algebra::gf::gf_impl::{GF163, GF3};
   use rust_ec::affine_point::AffinePoint;
-  use rust_ec::binary_ec::BinaryEC3;
-  use rust_ec::helpers::PreGeneratedParams;
+  use rust_ec::binary_ec::BinaryEC;
 
   #[test]
   fn negative()
   {
-    let ec = BinaryEC3::from(PreGeneratedParams::M163PB);
+    let ec = BinaryEC::<GF163>::generate_m163_pb_curve();
     let mut a = AffinePoint::Point {
-      x : GF3::from(BigUint::from_str_radix("2E2F85F5DD74CE983A5C4237229DAF8A3F35823BE", 16).unwrap()),
-      y : GF3::from(BigUint::from_str_radix("3826F008A8C51D7B95284D9D03FF0E00CE2CD723A", 16).unwrap()),
+      x : GF163::from(BigUint::from_str_radix("2E2F85F5DD74CE983A5C4237229DAF8A3F35823BE", 16).unwrap()),
+      y : GF163::from(BigUint::from_str_radix("3826F008A8C51D7B95284D9D03FF0E00CE2CD723A", 16).unwrap()),
     };
     let b = AffinePoint::Point {
-      x : GF3::from(BigUint::from_str_radix("2E2F85F5DD74CE983A5C4237229DAF8A3F35823BE", 16).unwrap()),
-      y : GF3::from(BigUint::from_str_radix("3826F008A8C51D7B95284D9D03FF0E00CE2CD723A", 16).unwrap()),
+      x : GF163::from(BigUint::from_str_radix("2E2F85F5DD74CE983A5C4237229DAF8A3F35823BE", 16).unwrap()),
+      y : GF163::from(BigUint::from_str_radix("3826F008A8C51D7B95284D9D03FF0E00CE2CD723A", 16).unwrap()),
     };
 
     println!("i: 0, a: {:X?}, b: {:X?}", a, b);

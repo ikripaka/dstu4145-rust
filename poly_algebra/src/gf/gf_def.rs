@@ -33,10 +33,10 @@ pub trait GFArithmetic<'a>:
   + Clone
   + PartialEq
   + Eq
-  + Add<Self>
-  + Mul<Self>
-  + Add<&'a Self>
-  + Mul<&'a Self>
+  + Add<Self, Output = Self>
+  + Mul<Self, Output = Self>
+  + Add<&'a Self, Output = Self>
+  + Mul<&'a Self, Output = Self>
   + fmt::Debug
   + fmt::Display
   + fmt::LowerHex
@@ -105,9 +105,11 @@ pub trait GFArithmeticObjSafe<'a>:
 {
   fn new(poly : BigUint) -> Box<Self> { <Self as GFFactoryObjSafe>::new(poly, <Self as GFFactoryObjSafe>::create_prime_poly()) }
   fn one() -> Box<Self>;
+  fn is_one(&self) -> bool;
   fn zero() -> Box<Self>;
-  fn add(&self, other : &Self) -> Box<Self>;
-  fn mul(&self, other : &Self) -> Box<Self>;
+  fn is_zero(&self) -> bool;
+  fn add(self, other : &Self) -> Box<Self>;
+  fn mul(self, other : &Self) -> Box<Self>;
   fn trace(&self) -> BigUint { trace(&self.get_value(), &self.get_prime_poly()) }
   fn htrace(&self) -> BigUint { htrace(&self.get_value(), &self.get_prime_poly()) }
   fn inverse(&self) -> Box<Self>
