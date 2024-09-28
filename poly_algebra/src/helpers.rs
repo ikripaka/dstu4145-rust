@@ -1,5 +1,7 @@
 use num_bigint::BigUint;
 use num_traits::{One, Zero};
+use rand_core::CryptoRngCore;
+use crate::gf::gf_def::GFArithmetic;
 
 pub fn get_string_array_plain<T : AsRef<str>>(s : &T) -> String
 {
@@ -91,4 +93,70 @@ pub(crate) fn create_prime_polynomial<T : AsRef<[u32]>>(degs : &T) -> BigUint
     prime_poly ^= BigUint::one() << *deg;
   }
   prime_poly
+}
+
+const BITS_IN_U32 : u128 = 32;
+const BYTES_INTO_U32 : u128 = 4;
+const BITS_INTO_BYTE : u128 = 8;
+pub fn generate_num<T : Into<u128>>(rng : &mut impl CryptoRngCore, bit_len : T) -> BigUint
+{
+  let bit_len = bit_len.into();
+  let gen_tries = ((&bit_len / BITS_INTO_BYTE) / BYTES_INTO_U32);
+  let bits_to_fit = bit_len - gen_tries * BITS_IN_U32;
+  let mut res = BigUint::zero();
+  for i in 0 .. gen_tries
+  {
+    res = (res << BITS_IN_U32) | BigUint::from(rng.next_u32());
+  }
+  let mask = (1 << bits_to_fit) - 1;
+  let finalizing_item = rng.next_u32() & mask;
+  res = (res << bits_to_fit) | BigUint::from(finalizing_item);
+  res
+}
+
+/// z^2 + uz = w; u,w \in GF(2^m)
+pub fn solve_quadratic_equation_in_field<'a, T : GFArithmetic<'a>>(u : &T, w : &T) -> Option<(T, u8)>
+{
+  if u.is_zero()
+  {
+    // Because prime poly has one bit more that ordinary number
+    let power = T::get_m() - 1;
+    let power = BigUint::one() << power;
+    return Some((w.pow(power), 1));
+  }
+  if w.is_zero()
+  {
+    return Some((T::zero(), 2));
+  }
+  let v = {
+    let u_inv = u.inverse();
+    let u_inv_squared = u_inv.square();
+    w.clone() * u_inv_squared
+  };
+  let tr_v = v.trace();
+  if tr_v.is_one()
+  {
+    return None;
+  }
+  let t = v.htrace();
+  let z = u.clone() * t;
+  Some((z, 2))
+}
+
+/// Function considers that hash comes into the function unchanged
+/// (i.e. we don't have to specify L_H [hash length])
+pub fn create_field_el_from_hash<'a, T : GFArithmetic<'a>, H : AsRef<[u8]>>(hash : H) -> T
+{
+  let hash = BigUint::from_bytes_be(hash.as_ref());
+  let k = std::cmp::min(hash.bits(), T::get_m() as u64);
+  let mask = (BigUint::one() << k) - BigUint::one();
+  let h = hash & mask;
+  if h.is_zero()
+  {
+    T::one()
+  }
+  else
+  {
+    T::from_poly(h)
+  }
 }

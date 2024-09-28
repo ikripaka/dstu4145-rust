@@ -3,9 +3,12 @@ mod tests
 {
   use num_bigint::BigUint;
   use num_traits::{Num, One};
-  use poly_algebra::gf::gf_impl::{GF163, GF3};
+  use poly_algebra::gf::gf_def::{GF163, GF3};
   use rust_ec::affine_point::AffinePoint;
   use rust_ec::binary_ec::BinaryEC;
+
+  use rand_chacha::ChaCha20Rng;
+  use rand_core::{CryptoRngCore, SeedableRng};
 
   #[test]
   fn negative()

@@ -1,24 +1,20 @@
 use std::marker::PhantomData;
-use getset::Getters;
 use num_bigint::BigUint;
 use num_traits::{Num, One, Zero};
-use poly_algebra::gf::gf_def::{GFArithmetic, GFArithmeticObjSafe};
-use poly_algebra::gf::gf_impl::{GF163, GF167, GF173, GF179, GF191, GF233, GF257, GF3, GF307, GF367, GF431};
+use poly_algebra::gf::gf_def::{GFArithmetic, GF163, GF167, GF173, GF179, GF191, GF233, GF257, GF3, GF307, GF367, GF431};
 use crate::affine_point::AffinePoint;
-#[derive(Getters)]
-#[getset(get)]
+use crate::helpers::{pack_affine_point, unpack_affine_point};
+
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct BinaryEC<T>
 {
-  //todo: add generic parameter
   pub(crate) a : ACoefficient<T>,
   pub(crate) b : T,
   pub(crate) bp : AffinePoint<T>,
   pub(crate) n : BigUint,
 }
 
-// todo: implement builder pattern
-
-#[derive(Clone, Debug)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub enum ACoefficient<T>
 {
   Zero(PhantomData<T>),
@@ -40,6 +36,22 @@ impl<'a, T : GFArithmetic<'a>> ACoefficient<T>
 
 impl<'a, T : GFArithmetic<'a>> BinaryEC<T>
 {
+  pub fn get_a(&self) -> ACoefficient<T> { self.a.clone() }
+
+  pub fn get_ref_a(&self) -> &ACoefficient<T> { &self.a }
+
+  pub fn get_b(&self) -> T { self.b.clone() }
+
+  pub fn get_ref_b(&self) -> &T { &self.b }
+
+  pub fn get_bp(&self) -> AffinePoint<T> { self.bp.clone() }
+
+  pub fn get_ref_bp(&self) -> &AffinePoint<T> { &self.bp }
+
+  pub fn get_ord(&self) -> BigUint { self.n.clone() }
+
+  pub fn get_ref_ord(&self) -> &BigUint { &self.n }
+
   // y^2 * z + xyz = x^3 + Ax^3 * z + Bz^3
   // y^2 + xy = x^3 + Ax^2 + B
   /// Function checks whether point belongs to the specified curve
@@ -54,6 +66,10 @@ impl<'a, T : GFArithmetic<'a>> BinaryEC<T>
       AffinePoint::Infinity => false,
     }
   }
+
+  pub fn unpack_affine_point(&self, num : &T) -> AffinePoint<T> { unpack_affine_point(num, self) }
+
+  pub fn pack_affine_point(&self, point : &AffinePoint<T>) -> T { pack_affine_point(point) }
 
   pub fn add(&self, point1 : &AffinePoint<T>, point2 : &AffinePoint<T>) -> AffinePoint<T> { point1.add(self, point2) }
 

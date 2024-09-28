@@ -3,9 +3,52 @@ mod tests
 {
   use num_bigint::BigUint;
   use num_traits::{Num, One, Zero};
-  use poly_algebra::gf::gf_def::GFArithmetic;
-  use poly_algebra::gf::gf_impl::{ObjSafeArithm, GF239, GF3};
-  use poly_algebra::helpers::to_binary_be;
+  use rand_chacha::ChaCha20Rng;
+  use rand_core::{CryptoRngCore, SeedableRng};
+  use poly_algebra::gf::gf_def::{GFArithmetic, GFDisplay, GFGetters};
+  use poly_algebra::gf::gf_def::{GF239, GF3, GF307};
+  use poly_algebra::helpers::{generate_num, to_binary_be};
+
+  const ITERATIONS_NUM : usize = 200;
+  fn test_generated_len(rng : &mut impl CryptoRngCore, len : u64)
+  {
+    for _ in 0 .. ITERATIONS_NUM
+    {
+      let num = generate_num(rng, len);
+      assert!(num.bits() <= len)
+    }
+  }
+  #[test]
+  fn test_random_generation()
+  {
+    let mut rng = ChaCha20Rng::from_seed(Default::default());
+    let mut len = 1;
+    test_generated_len(&mut rng, len);
+    len = 10;
+    test_generated_len(&mut rng, len);
+    len = 31;
+    test_generated_len(&mut rng, len);
+    len = 32;
+    test_generated_len(&mut rng, len);
+    len = 33;
+    test_generated_len(&mut rng, len);
+    len = 163;
+    test_generated_len(&mut rng, len);
+    len = 167;
+    test_generated_len(&mut rng, len);
+    len = 173;
+    test_generated_len(&mut rng, len);
+    len = 179;
+    test_generated_len(&mut rng, len);
+    len = 233;
+    test_generated_len(&mut rng, len);
+    len = 307;
+    test_generated_len(&mut rng, len);
+    len = 367;
+    test_generated_len(&mut rng, len);
+    len = 431;
+    test_generated_len(&mut rng, len);
+  }
 
   // todo: generate with macros test implementation of GF4
   #[test]
@@ -31,8 +74,8 @@ mod tests
   #[test]
   fn multiplication_test()
   {
-    let mut x : Box<dyn ObjSafeArithm> = Box::new(GF3::one());
-    x = Box::new(GF3::one());
+    // let mut x : Box<dyn poly_algebra::gf::gf_def::GFArithmeticObjSafe> = Box::new(GF3::one());
+    // x = Box::new(GF3::one());
     {
       let a = GF239::from(
         BigUint::from_str_radix(

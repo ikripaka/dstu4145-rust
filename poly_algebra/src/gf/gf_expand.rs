@@ -3,7 +3,7 @@ macro_rules! impl_gf_for_poly {
   ($tn:ty, $p_poly:expr) => {
     impl GFFactory<'_> for $tn
     {
-      fn new(poly : BigUint, prime_poly : BigUint) -> Self { Self { poly, prime_poly } }
+      fn new(poly : BigUint, prime_poly : BigUint, _ : SealingStruct) -> Self { Self { poly, prime_poly } }
 
       fn create_prime_poly() -> BigUint { create_prime_polynomial($p_poly) }
     }
@@ -15,7 +15,15 @@ macro_rules! impl_gf_for_poly {
       fn get_value(&self) -> BigUint { self.poly.clone() }
     }
 
-    impl<'a> GFArithmetic<'a> for $tn {}
+    impl<'a> GFArithmetic<'a> for $tn
+    {
+      fn rand(rng : &mut impl CryptoRngCore) -> Self
+      {
+        <Self as GFArithmetic>::from_poly(crate::helpers::generate_num(rng, Self::get_m()))
+      }
+
+      fn get_m() -> u32 { $p_poly[0] }
+    }
 
     impl One for $tn
     {
@@ -131,6 +139,106 @@ macro_rules! impl_gf_for_poly {
         num
       }
     }
+
+    ///
+    impl Mul<BigUint> for $tn
+    {
+      type Output = $tn;
+
+      fn mul(mut self, rhs : BigUint) -> Self::Output
+      {
+        let rhs = <$tn as GFArithmetic>::from_poly(rhs);
+        mul(&mut self.poly, &rhs.poly, &self.prime_poly);
+        self
+      }
+    }
+
+    impl Add<BigUint> for $tn
+    {
+      type Output = $tn;
+
+      fn add(mut self, rhs : BigUint) -> Self::Output
+      {
+        let rhs = <$tn as GFArithmetic>::from_poly(rhs);
+        add(&mut self.poly, &rhs.poly);
+        self
+      }
+    }
+
+    impl Mul<&BigUint> for $tn
+    {
+      type Output = $tn;
+
+      fn mul(mut self, rhs : &BigUint) -> Self::Output
+      {
+        let rhs = <$tn as GFArithmetic>::from_poly(rhs.clone());
+        mul(&mut self.poly, &rhs.poly, &self.prime_poly);
+        self
+      }
+    }
+
+    impl Add<&BigUint> for $tn
+    {
+      type Output = $tn;
+
+      fn add(mut self, rhs : &BigUint) -> Self::Output
+      {
+        let rhs = <$tn as GFArithmetic>::from_poly(rhs.clone());
+        add(&mut self.poly, &rhs.poly);
+        self
+      }
+    }
+
+    impl Mul<BigUint> for &$tn
+    {
+      type Output = $tn;
+
+      fn mul(mut self, rhs : BigUint) -> Self::Output
+      {
+        let rhs = <$tn as GFArithmetic>::from_poly(rhs);
+        let mut num = self.clone();
+        mul(&mut num.poly, &rhs.poly, &num.prime_poly);
+        num
+      }
+    }
+
+    impl Add<BigUint> for &$tn
+    {
+      type Output = $tn;
+
+      fn add(mut self, rhs : BigUint) -> Self::Output
+      {
+        let mut num = self.clone();
+        let rhs = <$tn as GFArithmetic>::from_poly(rhs);
+        add(&mut num.poly, &rhs.poly);
+        num
+      }
+    }
+    impl Mul<&BigUint> for &$tn
+    {
+      type Output = $tn;
+
+      fn mul(mut self, rhs : &BigUint) -> Self::Output
+      {
+        let rhs = <$tn as GFArithmetic>::from_poly(rhs.clone());
+        let mut num = self.clone();
+        mul(&mut num.poly, &rhs.poly, &num.prime_poly);
+        num
+      }
+    }
+
+    impl Add<&BigUint> for &$tn
+    {
+      type Output = $tn;
+
+      fn add(self, rhs : &BigUint) -> Self::Output
+      {
+        let rhs = <$tn as GFArithmetic>::from_poly(rhs.clone());
+        let mut num = self.clone();
+        add(&mut num.poly, &rhs.poly);
+        num
+      }
+    }
   };
 }
 
@@ -192,13 +300,18 @@ macro_rules! impl_obj_safe_gf_for_poly {
   ($tn:ty, $p_poly:expr) => {
     impl<'a> GFFactoryObjSafe<'a> for $tn
     {
-      fn new(poly : BigUint, prime_poly : BigUint) -> Box<Self> { Box::new(Self { poly, prime_poly }) }
+      fn new(poly : BigUint, prime_poly : BigUint, _ : SealingStruct) -> Box<Self> { Box::new(Self { poly, prime_poly }) }
 
       fn create_prime_poly() -> BigUint { create_prime_polynomial(&$p_poly) }
     }
 
     impl<'a> GFArithmeticObjSafe<'a> for $tn
     {
+      fn rand(rng : &mut impl CryptoRngCore) -> Box<Self>
+      {
+        <Self as GFArithmeticObjSafe>::new(crate::helpers::generate_num(rng, $p_poly[0]))
+      }
+
       fn one() -> Box<Self> { Box::new(<Self as num_traits::One>::one()) }
 
       fn is_one(&self) -> bool { <Self as num_traits::One>::is_one(self) }

@@ -1,10 +1,11 @@
 use num_bigint::BigUint;
 use num_traits::Zero;
+use rand_core::CryptoRngCore;
 use poly_algebra::gf::gf_def::{GFArithmetic, GFArithmeticObjSafe};
-use poly_algebra::gf::gf_impl::{GF239, GF3};
 use crate::binary_ec::BinaryEC;
+use crate::helpers::{generate_random_affine_point, pack_affine_point, unpack_affine_point};
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub enum AffinePoint<T>
 {
   Point
@@ -17,6 +18,8 @@ pub enum AffinePoint<T>
 
 impl<'a, T : GFArithmetic<'a>> AffinePoint<T>
 {
+  pub fn rand(rng : &mut impl CryptoRngCore, ec : &BinaryEC<T>) -> Self { generate_random_affine_point(rng, ec) }
+
   pub fn is_inf(&self) -> bool
   {
     if let Self::Infinity = self
@@ -35,16 +38,10 @@ impl<'a, T : GFArithmetic<'a>> AffinePoint<T>
   {
     match self
     {
-      AffinePoint::Point { x, y } =>
-      {
-        // let x = x.clone() + y;
-        // let x = x.clone().add();
-
-        AffinePoint::Point {
-          x : x.clone(),
-          y : x.clone() + y.clone(),
-        }
-      }
+      AffinePoint::Point { x, y } => AffinePoint::Point {
+        x : x.clone(),
+        y : x.clone() + y.clone(),
+      },
       AffinePoint::Infinity => AffinePoint::Infinity,
     }
   }
@@ -127,4 +124,8 @@ impl<'a, T : GFArithmetic<'a>> AffinePoint<T>
     }
     r
   }
+
+  pub fn unpack(num : &T, ec : &BinaryEC<T>) -> Self { unpack_affine_point(num, ec) }
+
+  pub fn pack(&self) -> T { pack_affine_point(self) }
 }

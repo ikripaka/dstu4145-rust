@@ -1,6 +1,6 @@
 use num_bigint::BigUint;
 use num_traits::{Num, One, Zero};
-use poly_algebra::gf::gf_impl::GF239;
+use poly_algebra::gf::gf_def::GF239;
 use poly_algebra::helpers::to_binary_be;
 
 fn create_prime_polynomial<T : AsRef<[u32]>>(degs : &T) -> BigUint
