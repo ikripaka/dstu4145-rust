@@ -101,7 +101,7 @@ const BITS_INTO_BYTE : u128 = 8;
 pub fn generate_num<T : Into<u128>>(rng : &mut impl CryptoRngCore, bit_len : T) -> BigUint
 {
   let bit_len = bit_len.into();
-  let gen_tries = ((&bit_len / BITS_INTO_BYTE) / BYTES_INTO_U32);
+  let gen_tries = (&bit_len / BITS_INTO_BYTE) / BYTES_INTO_U32;
   let bits_to_fit = bit_len - gen_tries * BITS_IN_U32;
   let mut res = BigUint::zero();
   for i in 0 .. gen_tries

@@ -31,7 +31,7 @@ macro_rules! impl_gf_for_poly {
       {
         Self {
           poly : BigUint::one(),
-          prime_poly : <GF3 as GFFactory>::create_prime_poly(),
+          prime_poly : <$tn as GFFactory>::create_prime_poly(),
         }
       }
     }
@@ -42,7 +42,7 @@ macro_rules! impl_gf_for_poly {
       {
         Self {
           poly : BigUint::zero(),
-          prime_poly : <GF3 as GFFactory>::create_prime_poly(),
+          prime_poly : <$tn as GFFactory>::create_prime_poly(),
         }
       }
 
@@ -282,7 +282,9 @@ macro_rules! impl_gf_conversions {
       fn from(mut value : BigUint) -> Self
       {
         let mut num = <$tn as num_traits::Zero>::zero();
+        // println!("New GF value: {}, prime_poly: {}", value.to_str_radix(16), num.prime_poly.to_str_radix(16));
         module_reduction(&mut value, &num.prime_poly);
+        // println!("After reduction GF value: {}, prime_poly: {}", value.to_str_radix(16), num.prime_poly.to_str_radix(16));
         let _ = mem::replace(&mut num.poly, value);
         num
       }

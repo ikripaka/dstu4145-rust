@@ -1,3 +1,5 @@
+use std::fmt;
+use std::fmt::Formatter;
 use num_bigint::BigUint;
 use num_traits::Zero;
 use rand_core::CryptoRngCore;
@@ -5,7 +7,7 @@ use poly_algebra::gf::gf_def::{GFArithmetic, GFArithmeticObjSafe};
 use crate::binary_ec::BinaryEC;
 use crate::helpers::{generate_random_affine_point, pack_affine_point, unpack_affine_point};
 
-#[derive(Debug, Clone, Eq, PartialEq, Hash)]
+#[derive(Clone, Eq, PartialEq, Hash)]
 pub enum AffinePoint<T>
 {
   Point
@@ -113,8 +115,10 @@ impl<'a, T : GFArithmetic<'a>> AffinePoint<T>
   {
     let mut r = AffinePoint::neutral();
     let mut tmp = self.clone();
+    let n = n.into();
+    println!("n in mul: {}", n.to_str_radix(16));
     // from LSB to MSB
-    for x in n.into().to_str_radix(2).into_bytes().iter().rev()
+    for x in n.to_str_radix(2).into_bytes().iter().rev()
     {
       if *x - b'0' == 1
       {
@@ -128,4 +132,81 @@ impl<'a, T : GFArithmetic<'a>> AffinePoint<T>
   pub fn unpack(num : &T, ec : &BinaryEC<T>) -> Self { unpack_affine_point(num, ec) }
 
   pub fn pack(&self) -> T { pack_affine_point(self) }
+}
+impl<'a, T : GFArithmetic<'a>> fmt::Debug for AffinePoint<T>
+{
+  fn fmt(&self, f : &mut Formatter<'_>) -> fmt::Result
+  {
+    match self
+    {
+      AffinePoint::Point { x, y } => write_into_formatter(Some((format!("{x:?}"), format!("{y:?}"))), f),
+      AffinePoint::Infinity => write_into_formatter(None, f),
+    }
+  }
+}
+
+impl<'a, T : GFArithmetic<'a>> fmt::Display for AffinePoint<T>
+{
+  fn fmt(&self, f : &mut Formatter<'_>) -> fmt::Result
+  {
+    match self
+    {
+      AffinePoint::Point { x, y } => write_into_formatter(Some((format!("{x}"), format!("{y}"))), f),
+      AffinePoint::Infinity => write_into_formatter(None, f),
+    }
+  }
+}
+
+impl<'a, T : GFArithmetic<'a>> fmt::LowerHex for AffinePoint<T>
+{
+  fn fmt(&self, f : &mut Formatter<'_>) -> fmt::Result
+  {
+    match self
+    {
+      AffinePoint::Point { x, y } => write_into_formatter(
+        Some((format!("{}", x.to_lower_hex_be()), format!("{}", y.to_lower_hex_be()))),
+        f,
+      ),
+      AffinePoint::Infinity => write_into_formatter(None, f),
+    }
+  }
+}
+
+impl<'a, T : GFArithmetic<'a>> fmt::UpperHex for AffinePoint<T>
+{
+  fn fmt(&self, f : &mut Formatter<'_>) -> fmt::Result
+  {
+    match self
+    {
+      AffinePoint::Point { x, y } => write_into_formatter(
+        Some((format!("{}", x.to_upper_hex_be()), format!("{}", y.to_upper_hex_be()))),
+        f,
+      ),
+      AffinePoint::Infinity => write_into_formatter(None, f),
+    }
+  }
+}
+
+impl<'a, T : GFArithmetic<'a>> fmt::Binary for AffinePoint<T>
+{
+  fn fmt(&self, f : &mut Formatter<'_>) -> fmt::Result
+  {
+    match self
+    {
+      AffinePoint::Point { x, y } =>
+      {
+        write_into_formatter(Some((format!("{}", x.to_binary_be()), format!("{}", y.to_binary_be()))), f)
+      }
+      AffinePoint::Infinity => write_into_formatter(None, f),
+    }
+  }
+}
+
+fn write_into_formatter(point : Option<(String, String)>, f : &mut Formatter<'_>) -> fmt::Result
+{
+  match point
+  {
+    None => write!(f, "Infinity"),
+    Some((x, y)) => write!(f, "Point {{ x: '{x}', y: '{y}' }}"),
+  }
 }

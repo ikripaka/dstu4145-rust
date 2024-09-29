@@ -3,6 +3,7 @@ use num_traits::One;
 use signature::digest::Digest;
 use signature::rand_core::CryptoRngCore;
 use poly_algebra::gf::gf_def::GFArithmetic;
+use poly_algebra::helpers::generate_num;
 use rust_ec::affine_point::AffinePoint;
 use rust_ec::binary_ec::BinaryEC;
 use crate::sign::Signature;
@@ -26,6 +27,8 @@ pub fn calculate_presign<'a, T : GFArithmetic<'a>>(rng : &mut impl CryptoRngCore
 
 pub fn transform_field_poly_into_number<T1 : Into<BigUint>, T2 : Into<BigUint>>(poly : T1, n : T2) -> BigUint
 {
-  let mask = BigUint::one() << (n.into().bits() - 1);
+  let mask = (BigUint::one() << (n.into().bits() - 1)) - BigUint::one();
   poly.into() & mask
 }
+
+pub fn generate_d<T : Into<BigUint>>(rng : &mut impl CryptoRngCore, n : T) -> BigUint { generate_num(rng, n.into().bits() - 1) }

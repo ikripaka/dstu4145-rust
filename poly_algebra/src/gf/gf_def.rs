@@ -245,7 +245,7 @@ const GF431_PRIME_POLY : [u32; 5] = [431_u32, 5, 3, 1, 0];
 
 impl_gf_for_poly!(GF3, &GF3_PRIME_POLY);
 impl_gf_display!(GF3);
-impl_obj_safe_gf_for_poly!(GF163, &GF3_PRIME_POLY);
+impl_obj_safe_gf_for_poly!(GF3, &GF3_PRIME_POLY);
 impl_gf_conversions!(GF3);
 
 impl_gf_for_poly!(GF239, &GF239_PRIME_POLY);
@@ -255,7 +255,7 @@ impl_gf_conversions!(GF239);
 
 impl_gf_for_poly!(GF163, &GF163_PRIME_POLY);
 impl_gf_display!(GF163);
-impl_obj_safe_gf_for_poly!(GF3, &GF163_PRIME_POLY);
+impl_obj_safe_gf_for_poly!(GF163, &GF163_PRIME_POLY);
 impl_gf_conversions!(GF163);
 
 impl_gf_for_poly!(GF167, &GF167_PRIME_POLY);
