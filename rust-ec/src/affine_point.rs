@@ -3,7 +3,7 @@ use std::fmt::Formatter;
 use num_bigint::BigUint;
 use num_traits::Zero;
 use rand_core::CryptoRngCore;
-use poly_algebra::gf::gf_def::{GFArithmetic, GFArithmeticObjSafe};
+use poly_algebra::gf::{GFArithmetic};
 use crate::binary_ec::BinaryEC;
 use crate::helpers::{generate_random_affine_point, pack_affine_point, unpack_affine_point};
 

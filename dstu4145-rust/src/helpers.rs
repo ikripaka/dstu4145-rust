@@ -2,7 +2,7 @@ use num_bigint::BigUint;
 use num_traits::One;
 use signature::digest::Digest;
 use signature::rand_core::CryptoRngCore;
-use poly_algebra::gf::gf_def::GFArithmetic;
+use poly_algebra::gf::GFArithmetic;
 use poly_algebra::helpers::generate_num;
 use rust_ec::affine_point::AffinePoint;
 use rust_ec::binary_ec::BinaryEC;

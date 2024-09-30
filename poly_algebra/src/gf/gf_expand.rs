@@ -1,17 +1,24 @@
 #[macro_export]
 macro_rules! impl_gf_for_poly {
-  ($tn:ty, $p_poly:expr) => {
+  ($tn:ty, $p_poly_slice:expr, $p_poly_lazy_cell:expr) => {
     impl GFFactory<'_> for $tn
     {
-      fn new(poly : BigUint, prime_poly : BigUint, _ : SealingStruct) -> Self { Self { poly, prime_poly } }
+      #[inline]
+      fn new(mut poly : BigUint, prime_poly : BigUint, _ : SealingStruct) -> Self {
+        module_reduction(&mut poly, &prime_poly);
+        Self { poly, prime_poly }
+      }
 
-      fn create_prime_poly() -> BigUint { create_prime_polynomial($p_poly) }
+      #[inline]
+      fn create_prime_poly() -> BigUint { $p_poly_lazy_cell.clone() }
     }
 
     impl GFGetters for $tn
     {
+      #[inline]
       fn get_prime_poly(&self) -> BigUint { self.prime_poly.clone() }
 
+      #[inline]
       fn get_value(&self) -> BigUint { self.poly.clone() }
     }
 
@@ -22,7 +29,7 @@ macro_rules! impl_gf_for_poly {
         <Self as GFArithmetic>::from_poly(crate::helpers::generate_num(rng, Self::get_m()))
       }
 
-      fn get_m() -> u32 { $p_poly[0] }
+      fn get_m() -> u32 { $p_poly_slice[0] }
     }
 
     impl One for $tn
@@ -97,7 +104,7 @@ macro_rules! impl_gf_for_poly {
     {
       type Output = $tn;
 
-      fn mul(mut self, rhs : Self) -> Self::Output
+      fn mul(self, rhs : Self) -> Self::Output
       {
         let mut num = self.clone();
         mul(&mut num.poly, &rhs.poly, &num.prime_poly);
@@ -109,7 +116,7 @@ macro_rules! impl_gf_for_poly {
     {
       type Output = $tn;
 
-      fn add(mut self, rhs : Self) -> Self::Output
+      fn add(self, rhs : Self) -> Self::Output
       {
         let mut num = self.clone();
         add(&mut num.poly, &rhs.poly);
@@ -120,7 +127,7 @@ macro_rules! impl_gf_for_poly {
     {
       type Output = $tn;
 
-      fn mul(mut self, rhs : &Self) -> Self::Output
+      fn mul(self, rhs : &Self) -> Self::Output
       {
         let mut num = self.clone();
         mul(&mut num.poly, &rhs.poly, &num.prime_poly);
@@ -193,7 +200,7 @@ macro_rules! impl_gf_for_poly {
     {
       type Output = $tn;
 
-      fn mul(mut self, rhs : BigUint) -> Self::Output
+      fn mul(self, rhs : BigUint) -> Self::Output
       {
         let rhs = <$tn as GFArithmetic>::from_poly(rhs);
         let mut num = self.clone();
@@ -206,7 +213,7 @@ macro_rules! impl_gf_for_poly {
     {
       type Output = $tn;
 
-      fn add(mut self, rhs : BigUint) -> Self::Output
+      fn add(self, rhs : BigUint) -> Self::Output
       {
         let mut num = self.clone();
         let rhs = <$tn as GFArithmetic>::from_poly(rhs);
@@ -218,7 +225,7 @@ macro_rules! impl_gf_for_poly {
     {
       type Output = $tn;
 
-      fn mul(mut self, rhs : &BigUint) -> Self::Output
+      fn mul(self, rhs : &BigUint) -> Self::Output
       {
         let rhs = <$tn as GFArithmetic>::from_poly(rhs.clone());
         let mut num = self.clone();
@@ -282,9 +289,7 @@ macro_rules! impl_gf_conversions {
       fn from(mut value : BigUint) -> Self
       {
         let mut num = <$tn as num_traits::Zero>::zero();
-        // println!("New GF value: {}, prime_poly: {}", value.to_str_radix(16), num.prime_poly.to_str_radix(16));
         module_reduction(&mut value, &num.prime_poly);
-        // println!("After reduction GF value: {}, prime_poly: {}", value.to_str_radix(16), num.prime_poly.to_str_radix(16));
         let _ = mem::replace(&mut num.poly, value);
         num
       }
@@ -293,38 +298,6 @@ macro_rules! impl_gf_conversions {
     impl Into<BigUint> for $tn
     {
       fn into(self) -> BigUint { self.poly }
-    }
-  };
-}
-
-#[macro_export]
-macro_rules! impl_obj_safe_gf_for_poly {
-  ($tn:ty, $p_poly:expr) => {
-    impl<'a> GFFactoryObjSafe<'a> for $tn
-    {
-      fn new(poly : BigUint, prime_poly : BigUint, _ : SealingStruct) -> Box<Self> { Box::new(Self { poly, prime_poly }) }
-
-      fn create_prime_poly() -> BigUint { create_prime_polynomial(&$p_poly) }
-    }
-
-    impl<'a> GFArithmeticObjSafe<'a> for $tn
-    {
-      fn rand(rng : &mut impl CryptoRngCore) -> Box<Self>
-      {
-        <Self as GFArithmeticObjSafe>::new(crate::helpers::generate_num(rng, $p_poly[0]))
-      }
-
-      fn one() -> Box<Self> { Box::new(<Self as num_traits::One>::one()) }
-
-      fn is_one(&self) -> bool { <Self as num_traits::One>::is_one(self) }
-
-      fn zero() -> Box<Self> { Box::new(<Self as num_traits::Zero>::zero()) }
-
-      fn is_zero(&self) -> bool { <Self as num_traits::Zero>::is_zero(self) }
-
-      fn add(self, other : &Self) -> Box<Self> { Box::new(self + other) }
-
-      fn mul(self, other : &Self) -> Box<Self> { Box::new(self * other) }
     }
   };
 }

@@ -1,7 +1,7 @@
 use std::marker::PhantomData;
 use num_bigint::BigUint;
 use num_traits::{Num, One, Zero};
-use poly_algebra::gf::gf_def::{GFArithmetic, GF163, GF167, GF173, GF179, GF191, GF233, GF239, GF257, GF3, GF307, GF367, GF431};
+use poly_algebra::gf::{GFArithmetic, GF163, GF167, GF173, GF179, GF191, GF233,  GF257, GF307, GF367, GF431};
 use crate::affine_point::AffinePoint;
 use crate::helpers::{pack_affine_point, unpack_affine_point};
 

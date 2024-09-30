@@ -1,7 +1,7 @@
 use num_bigint::BigUint;
 use num_traits::{One, Zero};
 use rand_core::CryptoRngCore;
-use poly_algebra::gf::gf_def::GFArithmetic;
+use poly_algebra::gf::GFArithmetic;
 use poly_algebra::helpers::solve_quadratic_equation_in_field;
 use crate::affine_point::AffinePoint;
 use crate::binary_ec::BinaryEC;
