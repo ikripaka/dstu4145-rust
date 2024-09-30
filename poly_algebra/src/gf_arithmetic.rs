@@ -86,7 +86,7 @@ pub fn _inverse_old(a : &BigUint, prime_poly : &BigUint) -> BigUint
   inverse
 }
 
-/// Function that implements regular polyn0mial reduction in binary field.
+/// Function that implements regular polynomial reduction in binary field.
 pub fn module_reduction(a : &mut BigUint, prime_poly : &BigUint)
 {
   let mut a_bits = a.bits();
@@ -126,6 +126,7 @@ pub fn htrace(a : &BigUint, prime_poly : &BigUint) -> BigUint
   t
 }
 
+/// Function calculates inverse element by using extended euclid algorithm.
 pub fn inverse(el : &BigUint, prime_poly : &BigUint) -> BigUint
 {
   let (mut r_0, mut r_1) = (el.clone(), prime_poly.clone());

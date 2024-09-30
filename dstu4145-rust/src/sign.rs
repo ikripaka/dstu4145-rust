@@ -145,7 +145,6 @@ impl<'a, T : GFArithmetic<'a>> SigningKey<T>
     if d.bits() > desired_length
     {
       return Err(Dstu4145Error::InvalidParamLength(desired_length, d.bits(), "d".to_string()));
-      //    49FF09C848613AEA23699F78C960D5174617311ADCC
     }
     println!("d: {:X}, bp: {:X}", d, ec.get_bp());
     let q = ec.get_ref_bp().mul(&ec, d.clone()).negative();
@@ -245,8 +244,6 @@ fn sign_inner<'a, T : GFArithmetic<'a>>(
     l_d,
   })
 }
-// 400000000000000000002bec12be2262d39bcf14d
-// 3014648760584073996496740520455678628842031897290
 
 pub fn verify<'a, T : GFArithmetic<'a>, D : Digest>(
   ec : &BinaryEC<T>,
@@ -332,7 +329,7 @@ mod tests
   use rand_chacha::ChaCha20Rng;
   use rand_chacha::rand_core::SeedableRng;
   use signature::{Signer, Verifier};
-  use poly_algebra::gf::gf_def::GF163;
+  use poly_algebra::gf::GF163;
   use poly_algebra::helpers::create_field_el_from_hash;
   use rust_ec::affine_point::AffinePoint;
   use rust_ec::binary_ec::BinaryEC;

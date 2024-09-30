@@ -17,3 +17,4 @@ rand_core.workspace = true
 
 [dev-dependencies]
 rand_chacha.workspace = true
+proptest.workspace = true

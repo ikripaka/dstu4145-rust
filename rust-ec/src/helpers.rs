@@ -6,6 +6,7 @@ use poly_algebra::helpers::solve_quadratic_equation_in_field;
 use crate::affine_point::AffinePoint;
 use crate::binary_ec::BinaryEC;
 
+/// Function packs point according to the algorithm `6.9`.
 pub fn pack_affine_point<'a, T : GFArithmetic<'a>>(point : &AffinePoint<T>) -> T
 {
   match point
@@ -53,6 +54,7 @@ pub fn pack_affine_point<'a, T : GFArithmetic<'a>>(point : &AffinePoint<T>) -> T
   }
 }
 
+/// Function unpacks compressed point from GF(2^m) field element according to the algorithm `6.10`.
 pub fn unpack_affine_point<'a, T : GFArithmetic<'a>>(num : &T, ec : &BinaryEC<T>) -> AffinePoint<T>
 {
   let mut x_p = num.get_value();

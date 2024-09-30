@@ -1,62 +1,50 @@
 # rust-ec
 
-**rust-ec** -- бібліотека, що надає доступ до використання чисел із довільною довжиною для спрощення обчислень.
+Koblitz elliptic curve implementation with usage of binary field arithmetic in it.
+Provides specific implementation of Koblitz elliptic curve `DSTU 4145-2002` standard.
 
-Minimal Rust version -- 1.77.1
+## Overview
+This module is dedicated to the usage with DSTU 4145-2002. Implementation uses binary field arithmetic from `poly_algebra`. Worth noting that EC you can initialize from all possible implemented types from `poly_algebra`.
 
-## Щоб імпортувати бібліотеку:
-1. Копіюєте теку `/rust-ec` і вставляєте у корінь вашого проєкту поряд із `src`.  <br />
-   Тобто повинно вийти ось так:
-    ```console
-        user@device:~/PathToProjectFolder$ ls
-            src
-            rust-ec
-            Cargo.toml
-   ```
-    + можна [ось тут](https://blog.pnkfx.org/blog/2022/05/12/linking-rust-crates/) глянути як саме бібліотеки взаємопов'язуються між собою (тут використовуємо `static rlib linked with Rust` рис. 2 починаючи згори).
+## Example
+```rust 
+#use rand_chacha::ChaCha20Rng;
+#use rand_core::SeedableRng;
+use poly_algebra::helpers::generate_num;
+use rust_ec::{affine_point::AffinePoint, binary_ec::BinaryEC};
 
-2. У `Cargo.toml` до вашого проєкту треба додати до `[dependencies]` залежностей <br />`rust-ec = {path = "назва_підпапки де знаходиться бібліотека"}`, <br />, але у нашому випадку це:
-    ```TOML
-        [dependencies]
-        rust_bigint = {path = "/rust-ec"}
-        num-traits = "0.2.18"
-    ```
-   P.S.
-   Можна спробувати імпортувати за допомогою посилання на git, але у мене не вийшло через те, що мережа чомусь блокувала звантаження бібліотеки із github.
-   Воно повинно було б виглядати наступним чином.
-   ```TOML
-        [dependencies]
-        rust_bigint = {git = "https://github.com/ikripaka/EC-2024/rust-ec"}
-        num-traits = "0.2.18"
-   ```
-
-У даній бібліотеці реалізовано такі типи для імплементації бібіліотеки для обчислення точок на ЕК: EcCurve, EcPointP, EcPointA.
-* ECurve -- структура ЕК, у якій реалізовані операції;
-* EcPointP -- точка на ЕК у проективних координатах;
-* EcPointA -- точка на ЕК у афінних координатах.
-
-Для EcCurve було імплементовано наступні функції:
-* перевірки належності точки до кривої  ``` ECurve::check_affine_point(...) | ECurve::check_projective_point(...) ```
-* додавання та подвоєння точок ``` ECurve::affine_point_add(...) | ECurve::proj_point_add(...)```
-* скалярний добуток ``` ECurve::affine_point_mul(...) | ECurve::proj_point_mul(...) ```
-* створення ЕК із готових координат із нявних, а саме: P192, P224, P256, P384
-* перетворення точки Z із проективних координат на 1 для можливості проведення дебагу ``` EcPointP::transform_proj_point(...) ``` 
-* взяття по модулю усіх координат проективної точки за потреби ``` EcPointP::take_by_module(...) ```
-
-Для EcPointP було імплементовано наступні функції:
-* створення точки як із певних координат ``` EcPointA::new(...); ```, разом із створенням із проективних координат ``` EcPointA::from_projective(...); ```
-* перетворення у негативну точку за допомогою ``` EcPointA::negative(...) ```
-
-Для EcPointA було імплементовано наступні функції:
-* створення точки як із певних координат ``` EcPointP::new(...); ```, разом із створенням із афінних координат ``` EcPointP::from_affine(...); ```
-* перетворення у негативну точку за допомогою ``` EcPointP::negative(...) ```
-* перетворення точки із проективних у афінні координати ``` EcPointP::to_affine(...) ```
-* перевірка точки на нескінченність ``` EcPointP::is_inf(...) ```
-* створення нейтральної точки ``` EcPointP::neutral(...) ```
+#fn main()
+#{
+#  let mut rng = ChaCha20Rng::from_entropy();
+  let ec = BinaryEC::generate_m257_pb_curve();
+  let p = ec.get_bp();
+  let q = {
+    let bp = ec.get_bp();
+    let k = generate_num(&mut rng, ec.get_ref_ord().bits()) % ec.get_ref_ord();
+    ec.mul(&bp, k)
+  };
+  let sum = ec.add(&q.negative(), &p);
+  let packed_sum = sum.pack();
+  let unpack_p = AffinePoint::unpack(&packed_sum, &ec);
+  assert_eq!(ec.mul(&unpack_p, ec.get_ord()), AffinePoint::Infinity);
+#}
+```
 
 
-Для запуску тестів бібліотеки треба виконати.
-   ```bash 
-     cargo test
-   ```
-Для використання треба імпортувати бібліотеку у проєкт, як було показано у п.2 [Щоб імпортувати бібліотеку:].
+## Adding to your project
+
+* From git:
+```toml
+[dependencies]
+rust-ec = { git = "https://github.com/ikripaka/dstu4145-rust/rust-ec"}
+num-traits = "0.2"
+num-bigint = "0.4.6"
+```
+
+* From local:
+```toml
+[dependencies]
+rust-ec = { path = "<path_to_folder>/dstu4145-rust/rust-ec"}
+num-traits = "0.2"
+num-bigint = "0.4.6"
+```

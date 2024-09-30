@@ -40,7 +40,7 @@ use poly_algebra::gf::{GFArithmetic, GFDisplay, GF257};
 
 ```
 
-## Importing
+## Adding to your project
 
 * From git: 
 ```toml

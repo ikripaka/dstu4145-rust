@@ -2,6 +2,13 @@
 name = "dstu4145-rust"
 version = "0.1.0"
 edition = "2021"
+description = "Rust-native library for calulating specific DSTU 4145-2002 sign."
+readme = "Readme.md"
+rust-version = "1.81.0"
+authors = ["Illia Kripaka"]
+repository = "https://github.com/ikripaka/dstu4145-rust/poly-algebra"
+keywords = ["cryptography", "dstu4145", "digital-signature"]
+categories = ["cryptography"]
 
 [dependencies]
 signature.workspace = true
@@ -14,4 +21,5 @@ rand_chacha.workspace = true
 sha3.workspace = true
 
 [dev-dependencies]
-hex-literal = "0.4.1"
+hex-literal.workspace = true
+proptest.workspace = true

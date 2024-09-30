@@ -7,7 +7,7 @@ It provides DSTU-4145 implementation in Rust, but with some nuances:
 
 
 
-Actual implemented algorithm scheme is represented [here](./assets/README.md).
+Actual implemented algorithm scheme is represented [here](./assets/Readme).
 
 
 

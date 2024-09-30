@@ -1,14 +1,23 @@
 [workspace]
 resolver = "2"
 members = ["dstu4145-rust", "poly_algebra", "rust-ec"]
+description = "Rust-native library for calulating specific Dstu 4145-2002 sign."
+readme = "Readme.md"
+rust-version = "1.81.0"
+authors = ["Illia Kripaka"]
+repository = "https://github.com/ikripaka/dstu4145-rust/"
+keywords = ["cryptography", "dstu4145", "digital-signature"]
+categories = ["cryptography"]
 
 [workspace.dependencies]
 poly_algebra = { path = "./poly_algebra" }
 rust-ec = { path = "./rust-ec" }
 num-traits = "0.2"
 num-bigint = "0.4.6"
-signature = { version = "2.2.0", features = ["rand_core",  "digest", "std"] }
+signature = { version = "2.2.0", features = ["rand_core", "digest", "std"] }
 thiserror = "1.0.64"
-rand_chacha = { version = "0.3.1"}
+rand_chacha = { version = "0.3.1" }
 rand_core = { version = "0.6.4", features = ["getrandom"] }
 sha3 = "0.10.8"
+proptest = "1.5.0"
+hex-literal = "0.4.1"

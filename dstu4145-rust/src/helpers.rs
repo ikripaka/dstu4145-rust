@@ -13,6 +13,7 @@ pub fn calculate_presign<'a, T : GFArithmetic<'a>>(rng : &mut impl CryptoRngCore
 {
   loop
   {
+    // todo: incorrect e generating  <n!
     let e = T::rand(rng);
     let r = ec.get_ref_bp().mul(ec, e.clone());
     if let AffinePoint::Point { x: x_p, .. } = r

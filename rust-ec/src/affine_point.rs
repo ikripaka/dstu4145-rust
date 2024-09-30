@@ -7,6 +7,7 @@ use poly_algebra::gf::{GFArithmetic};
 use crate::binary_ec::BinaryEC;
 use crate::helpers::{generate_random_affine_point, pack_affine_point, unpack_affine_point};
 
+/// Enum represents affine point in the EC, where $x,y \in GF(2^m)$.
 #[derive(Clone, Eq, PartialEq, Hash)]
 pub enum AffinePoint<T>
 {
@@ -20,8 +21,11 @@ pub enum AffinePoint<T>
 
 impl<'a, T : GFArithmetic<'a>> AffinePoint<T>
 {
+  /// Function generates random affine point for dedicated EC according to the algorithm ``.
+  /// Generally it generates x point and substitutes it into EC equation.
   pub fn rand(rng : &mut impl CryptoRngCore, ec : &BinaryEC<T>) -> Self { generate_random_affine_point(rng, ec) }
 
+  /// Checks whether point is $O_e$.
   pub fn is_inf(&self) -> bool
   {
     if let Self::Infinity = self
@@ -34,8 +38,12 @@ impl<'a, T : GFArithmetic<'a>> AffinePoint<T>
     }
   }
 
+  /// Function gets neutral point in the affine coordinates. Generally it's point at infinity i.e. $O_e$.
   pub fn neutral() -> AffinePoint<T> { AffinePoint::Infinity }
 
+  /// Function generates negative point according to the point properties.
+  /// (x_p, y_p) -> (x_p, x_p + y_p)
+  /// Infinity -> Infinity
   pub fn negative(&self) -> AffinePoint<T>
   {
     match self
@@ -48,6 +56,7 @@ impl<'a, T : GFArithmetic<'a>> AffinePoint<T>
     }
   }
 
+  /// Function performs addition in affine coordinates.
   pub fn add(&self, ec : &BinaryEC<T>, q : &Self) -> Self
   {
     match self
@@ -71,25 +80,29 @@ impl<'a, T : GFArithmetic<'a>> AffinePoint<T>
             /// Calculating `x_r`
             let numerator = y_p.clone() + y_q;
             let denominator = (x_p.clone() + x_q.clone()).inverse();
-            let fraction = numerator.clone() * denominator.clone();
+            let fraction = numerator * denominator.clone();
             let x_r = {
               let fraction2 = fraction.clone().square();
-              fraction.clone() + fraction2.clone() + x_p.clone() + x_q.clone() + ec.a.as_field_el()
+              fraction.clone() + fraction2 + x_p.clone() + x_q + ec.a.as_field_el()
             };
             /// Calculating `y_r`
             let y_r = {
-              let tmp1 = x_p.clone() + x_r.clone();
+              let tmp1 = x_p + x_r.clone();
               fraction * tmp1 + x_r.clone() + y_p
             };
             AffinePoint::Point { x : x_r, y : y_r }
           }
-          AffinePoint::Infinity => AffinePoint::Infinity,
+          AffinePoint::Infinity => AffinePoint::Point {
+            x : x_p.clone(),
+            y : y_p.clone(),
+          },
         }
       }
       AffinePoint::Infinity => q.clone(),
     }
   }
 
+  /// Function performs doubling of point in affine coordinates.
   pub fn double(&self, ec : &BinaryEC<T>) -> Self
   {
     match self
@@ -111,12 +124,12 @@ impl<'a, T : GFArithmetic<'a>> AffinePoint<T>
     }
   }
 
+  /// Function performs multiplication on number in affine coordinates.
   pub fn mul<N : Into<BigUint>>(&self, ec : &BinaryEC<T>, n : N) -> Self
   {
     let mut r = AffinePoint::neutral();
     let mut tmp = self.clone();
     let n = n.into();
-    println!("n in mul: {}", n.to_str_radix(16));
     // from LSB to MSB
     for x in n.to_str_radix(2).into_bytes().iter().rev()
     {
@@ -129,8 +142,18 @@ impl<'a, T : GFArithmetic<'a>> AffinePoint<T>
     r
   }
 
+  /// Function performs _packing_ of point that has odd prime order in EC over GF(2^m)
+  /// according to the algorithm `6.10`. So, for example, you can use this algorithm with
+  /// base point or with another point that has the same order as in `EC.get_ord()`.
+  /// _By now this function don't return an error(not to conforming prime order condition)_
+  ///_but it can lead to incorrect unpacking behaviour._
+  /// __To sum up unpacking is suitable to use only for public keys.__
   pub fn unpack(num : &T, ec : &BinaryEC<T>) -> Self { unpack_affine_point(num, ec) }
 
+  /// Function performs _unpacking_ of point that has odd prime order in EC over GF(2^m)
+  /// according to the algorithm `6.9`.
+  /// _With usage of incorrect point in packing stage, it's impossible to restore previous point._
+  /// __To sum up packing is suitable to use only for public keys.__
   pub fn pack(&self) -> T { pack_affine_point(self) }
 }
 impl<'a, T : GFArithmetic<'a>> fmt::Debug for AffinePoint<T>

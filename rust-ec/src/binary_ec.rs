@@ -5,6 +5,11 @@ use poly_algebra::gf::{GFArithmetic, GF163, GF167, GF173, GF179, GF191, GF233,  
 use crate::affine_point::AffinePoint;
 use crate::helpers::{pack_affine_point, unpack_affine_point};
 
+
+/// Koblitz elliptic curve over binary field that is represented by equation:
+/// $y^2 + xy = x^3 + Ax^2 + B$, where $A, B \in GF(2^m)$, $A = {0, 1}$, $B != 0$.
+/// As you would expect this [BinaryEC] struct you can use with `GF` fields declared
+/// in the `poly-algebra` library.
 #[derive(Clone, Eq, PartialEq, Hash)]
 pub struct BinaryEC<T>
 {
@@ -14,6 +19,7 @@ pub struct BinaryEC<T>
   pub(crate) n : BigUint,
 }
 
+/// Represents `A` coefficient in the EC equation, exactly 0 or 1 values.
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub enum ACoefficient<T>
 {
@@ -36,6 +42,7 @@ impl<'a, T : GFArithmetic<'a>> ACoefficient<T>
 
 impl BinaryEC<GF163>
 {
+  /// Generates EC over [GF163] field.
   pub fn generate_m163_pb_curve() -> BinaryEC<GF163>
   {
     BinaryEC::<GF163> {
@@ -49,6 +56,7 @@ impl BinaryEC<GF163>
     }
   }
 
+  /// Generates EC over [GF163] field exactly created for test purposes.
   pub fn generate_m163_pb_curve_from_examples() -> BinaryEC<GF163>
   {
     BinaryEC::<GF163> {
@@ -65,6 +73,7 @@ impl BinaryEC<GF163>
 
 impl BinaryEC<GF167>
 {
+  /// Generates EC over [GF167] field.
   pub fn generate_m167_pb_curve() -> BinaryEC<GF167>
   {
     BinaryEC::<GF167> {
@@ -80,6 +89,7 @@ impl BinaryEC<GF167>
 }
 impl BinaryEC<GF173>
 {
+  /// Generates EC over [GF173] field.
   pub fn generate_m173_pb_curve() -> BinaryEC<GF173>
   {
     BinaryEC::<GF173> {
@@ -95,6 +105,7 @@ impl BinaryEC<GF173>
 }
 impl BinaryEC<GF179>
 {
+  /// Generates EC over [GF179] field.
   pub fn generate_m179_pb_curve() -> BinaryEC<GF179>
   {
     BinaryEC::<GF179> {
@@ -110,6 +121,7 @@ impl BinaryEC<GF179>
 }
 impl BinaryEC<GF191>
 {
+  /// Generates EC over [GF191] field.
   pub fn generate_m191_pb_curve() -> BinaryEC<GF191>
   {
     BinaryEC::<GF191> {
@@ -125,6 +137,7 @@ impl BinaryEC<GF191>
 }
 impl BinaryEC<GF233>
 {
+  /// Generates EC over [GF233] field.
   pub fn generate_m233_pb_curve() -> BinaryEC<GF233>
   {
     BinaryEC::<GF233> {
@@ -140,6 +153,7 @@ impl BinaryEC<GF233>
 }
 impl BinaryEC<GF257>
 {
+  /// Generates EC over [GF257] field.
   pub fn generate_m257_pb_curve() -> BinaryEC<GF257>
   {
     BinaryEC::<GF257> {
@@ -159,6 +173,7 @@ impl BinaryEC<GF257>
 }
 impl BinaryEC<GF307>
 {
+  /// Generates EC over [GF307] field.
   pub fn generate_m307_pb_curve() -> BinaryEC<GF307>
   {
     BinaryEC::<GF307> {
@@ -196,6 +211,7 @@ impl BinaryEC<GF307>
 }
 impl BinaryEC<GF367>
 {
+  /// Generates EC over [GF367] field.
   pub fn generate_m367_pb_curve() -> BinaryEC<GF367>
   {
     BinaryEC::<GF367> {
@@ -233,6 +249,7 @@ impl BinaryEC<GF367>
 }
 impl BinaryEC<GF431>
 {
+  /// Generates EC over [GF431] field.
   pub fn generate_m431_pb_curve() -> BinaryEC<GF431>
   {
     BinaryEC::<GF431> {
@@ -271,25 +288,32 @@ impl BinaryEC<GF431>
 
 impl<'a, T : GFArithmetic<'a>> BinaryEC<T>
 {
+  /// Function gets `A` coefficient from certain EC variant.
   pub fn get_a(&self) -> ACoefficient<T> { self.a.clone() }
 
+  /// Function gets reference to `A` coefficient from certain EC variant.
   pub fn get_ref_a(&self) -> &ACoefficient<T> { &self.a }
 
+  /// Function gets `B` coefficient from certain EC variant.
   pub fn get_b(&self) -> T { self.b.clone() }
 
+  /// Function gets reference to `B` coefficient from certain EC variant.
   pub fn get_ref_b(&self) -> &T { &self.b }
 
+  /// Function gets base point from certain EC variant.
+  /// It has big prime order in EC that is saved in `EC.get_ord()`.
   pub fn get_bp(&self) -> AffinePoint<T> { self.bp.clone() }
 
+  /// Function gets reference to base point from certain EC variant.
+  /// It has big prime order in EC that is saved in `EC.get_ord()`.
   pub fn get_ref_bp(&self) -> &AffinePoint<T> { &self.bp }
 
+  /// Function gets big prime order of base point.
   pub fn get_ord(&self) -> BigUint { self.n.clone() }
-
+  /// Function gets reference to the big prime order of base point.
   pub fn get_ref_ord(&self) -> &BigUint { &self.n }
-
-  // y^2 * z + xyz = x^3 + Ax^3 * z + Bz^3
-  // y^2 + xy = x^3 + Ax^2 + B
   /// Function checks whether point belongs to the specified curve
+  /// by calculating this equation: $y^2 + xy = x^3 + Ax^2 + B$.
   pub fn check_affine_point(&self, point : AffinePoint<T>) -> bool
   {
     match point
@@ -301,14 +325,25 @@ impl<'a, T : GFArithmetic<'a>> BinaryEC<T>
       AffinePoint::Infinity => false,
     }
   }
-
+  /// Function performs _packing_ of point that has odd prime order in EC over GF(2^m)
+  /// according to the algorithm `6.9`.
+  /// Overrides function from [AffinePoint::unpack].
   pub fn unpack_affine_point(&self, num : &T) -> AffinePoint<T> { unpack_affine_point(num, self) }
 
+  /// Function performs _unpacking_ of point that has odd prime order in EC over GF(2^m)
+  /// according to the algorithm `6.10`.
+  /// Overrides function from [AffinePoint::pack].
   pub fn pack_affine_point(&self, point : &AffinePoint<T>) -> T { pack_affine_point(point) }
 
-  pub fn add(&self, point1 : &AffinePoint<T>, point2 : &AffinePoint<T>) -> AffinePoint<T> { point1.add(self, point2) }
+  /// Function performs addition in affine coordinates.
+  /// Related to function [AffinePoint::add].
+  pub fn add(&self, p: &AffinePoint<T>, q: &AffinePoint<T>) -> AffinePoint<T> { p.add(self, q) }
 
-  pub fn double(&self, point : &AffinePoint<T>) -> AffinePoint<T> { point.double(self) }
+  /// Function performs doubling of point in affine coordinates.
+  /// Related to function [AffinePoint::double].
+  pub fn double(&self, p: &AffinePoint<T>) -> AffinePoint<T> { p.double(self) }
 
+  /// Function performs multiplication on number in affine coordinates.
+  /// Related to function [AffinePoint::mul].
   pub fn mul<N : Into<BigUint>>(&self, point : &AffinePoint<T>, n : N) -> AffinePoint<T> { point.mul(self, n) }
 }
