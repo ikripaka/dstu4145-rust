@@ -316,13 +316,13 @@ impl<'a, T : GFArithmetic<'a>> BinaryEC<T>
 
   /// Function checks whether point belongs to the specified curve
   /// by calculating this equation: $y^2 + xy = x^3 + Ax^2 + B$.
-  pub fn check_affine_point(&self, point : AffinePoint<T>) -> bool
+  pub fn check_affine_point(&self, point : &AffinePoint<T>) -> bool
   {
     match point
     {
       AffinePoint::Point { x: x_p, y: y_p } =>
       {
-        y_p.square() + x_p.clone() * y_p == x_p.clone().pow(3_u8) + (self.a.as_field_el() * x_p.square()) + self.b.clone()
+        y_p.square() + x_p.clone() * y_p.clone() == x_p.clone().pow(3_u8) + (self.a.as_field_el() * x_p.square()) + self.b.clone()
       }
       AffinePoint::Infinity => false,
     }

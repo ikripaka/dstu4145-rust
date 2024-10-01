@@ -42,86 +42,26 @@ mod tests
   fn arb_gf307() -> impl Strategy<Value = GF307> { arb_biguint().prop_map(|x| GF307::from(x)) }
   fn arb_gf367() -> impl Strategy<Value = GF367> { arb_biguint().prop_map(|x| GF367::from(x)) }
   fn arb_gf431() -> impl Strategy<Value = GF431> { arb_biguint().prop_map(|x| GF431::from(x)) }
-  fn arb_two_gf163() -> impl Strategy<Value = (GF163, GF163)>
-  {
-    arb_two_biguints().prop_map(|(x, y)| (GF163::from(x), GF163::from(y)))
-  }
-  fn arb_two_gf167() -> impl Strategy<Value = (GF167, GF167)>
-  {
-    arb_two_biguints().prop_map(|(x, y)| (GF167::from(x), GF167::from(y)))
-  }
-  fn arb_two_gf173() -> impl Strategy<Value = (GF173, GF173)>
-  {
-    arb_two_biguints().prop_map(|(x, y)| (GF173::from(x), GF173::from(y)))
-  }
-  fn arb_two_gf179() -> impl Strategy<Value = (GF179, GF179)>
-  {
-    arb_two_biguints().prop_map(|(x, y)| (GF179::from(x), GF179::from(y)))
-  }
-  fn arb_two_gf191() -> impl Strategy<Value = (GF191, GF191)>
-  {
-    arb_two_biguints().prop_map(|(x, y)| (GF191::from(x), GF191::from(y)))
-  }
-  fn arb_two_gf233() -> impl Strategy<Value = (GF233, GF233)>
-  {
-    arb_two_biguints().prop_map(|(x, y)| (GF233::from(x), GF233::from(y)))
-  }
-  fn arb_two_gf257() -> impl Strategy<Value = (GF257, GF257)>
-  {
-    arb_two_biguints().prop_map(|(x, y)| (GF257::from(x), GF257::from(y)))
-  }
-  fn arb_two_gf307() -> impl Strategy<Value = (GF307, GF307)>
-  {
-    arb_two_biguints().prop_map(|(x, y)| (GF307::from(x), GF307::from(y)))
-  }
-  fn arb_two_gf367() -> impl Strategy<Value = (GF367, GF367)>
-  {
-    arb_two_biguints().prop_map(|(x, y)| (GF367::from(x), GF367::from(y)))
-  }
-  fn arb_two_gf431() -> impl Strategy<Value = (GF431, GF431)>
-  {
-    arb_two_biguints().prop_map(|(x, y)| (GF431::from(x), GF431::from(y)))
-  }
-  fn arb_three_gf163() -> impl Strategy<Value = (GF163, GF163, GF163)>
-  {
-    arb_three_biguints().prop_map(|(x, y, z)| (GF163::from(x), GF163::from(y), GF163::from(z)))
-  }
-  fn arb_three_gf167() -> impl Strategy<Value = (GF167, GF167, GF167)>
-  {
-    arb_three_biguints().prop_map(|(x, y, z)| (GF167::from(x), GF167::from(y), GF167::from(z)))
-  }
-  fn arb_three_gf173() -> impl Strategy<Value = (GF173, GF173, GF173)>
-  {
-    arb_three_biguints().prop_map(|(x, y, z)| (GF173::from(x), GF173::from(y), GF173::from(z)))
-  }
-  fn arb_three_gf179() -> impl Strategy<Value = (GF179, GF179, GF179)>
-  {
-    arb_three_biguints().prop_map(|(x, y, z)| (GF179::from(x), GF179::from(y), GF179::from(z)))
-  }
-  fn arb_three_gf191() -> impl Strategy<Value = (GF191, GF191, GF191)>
-  {
-    arb_three_biguints().prop_map(|(x, y, z)| (GF191::from(x), GF191::from(y), GF191::from(z)))
-  }
-  fn arb_three_gf233() -> impl Strategy<Value = (GF233, GF233, GF233)>
-  {
-    arb_three_biguints().prop_map(|(x, y, z)| (GF233::from(x), GF233::from(y), GF233::from(z)))
-  }
-  fn arb_three_gf257() -> impl Strategy<Value = (GF257, GF257, GF257)>
-  {
-    arb_three_biguints().prop_map(|(x, y, z)| (GF257::from(x), GF257::from(y), GF257::from(z)))
-  }
-  fn arb_three_gf307() -> impl Strategy<Value = (GF307, GF307, GF307)>
-  {
-    arb_three_biguints().prop_map(|(x, y, z)| (GF307::from(x), GF307::from(y), GF307::from(z)))
-  }
-  fn arb_three_gf367() -> impl Strategy<Value = (GF367, GF367, GF367)>
-  {
-    arb_three_biguints().prop_map(|(x, y, z)| (GF367::from(x), GF367::from(y), GF367::from(z)))
-  }
-  fn arb_three_gf431() -> impl Strategy<Value = (GF431, GF431, GF431)>
-  {
-    arb_three_biguints().prop_map(|(x, y, z)| (GF431::from(x), GF431::from(y), GF431::from(z)))
-  }
+  fn arb_two_gf163() -> impl Strategy<Value = (GF163, GF163)> { (arb_gf163(), arb_gf163()) }
+  fn arb_two_gf167() -> impl Strategy<Value = (GF167, GF167)> { (arb_gf167(), arb_gf167()) }
+  fn arb_two_gf173() -> impl Strategy<Value = (GF173, GF173)> { (arb_gf173(), arb_gf173()) }
+  fn arb_two_gf179() -> impl Strategy<Value = (GF179, GF179)> { (arb_gf179(), arb_gf179()) }
+  fn arb_two_gf191() -> impl Strategy<Value = (GF191, GF191)> { (arb_gf191(), arb_gf191()) }
+  fn arb_two_gf233() -> impl Strategy<Value = (GF233, GF233)> { (arb_gf233(), arb_gf233()) }
+  fn arb_two_gf257() -> impl Strategy<Value = (GF257, GF257)> { (arb_gf257(), arb_gf257()) }
+  fn arb_two_gf307() -> impl Strategy<Value = (GF307, GF307)> { (arb_gf307(), arb_gf307()) }
+  fn arb_two_gf367() -> impl Strategy<Value = (GF367, GF367)> { (arb_gf367(), arb_gf367()) }
+  fn arb_two_gf431() -> impl Strategy<Value = (GF431, GF431)> { (arb_gf431(), arb_gf431()) }
+  fn arb_three_gf163() -> impl Strategy<Value = (GF163, GF163, GF163)> { (arb_gf163(), arb_gf163(), arb_gf163()) }
+  fn arb_three_gf167() -> impl Strategy<Value = (GF167, GF167, GF167)> { (arb_gf167(), arb_gf167(), arb_gf167()) }
+  fn arb_three_gf173() -> impl Strategy<Value = (GF173, GF173, GF173)> { (arb_gf173(), arb_gf173(), arb_gf173()) }
+  fn arb_three_gf179() -> impl Strategy<Value = (GF179, GF179, GF179)> { (arb_gf179(), arb_gf179(), arb_gf179()) }
+  fn arb_three_gf191() -> impl Strategy<Value = (GF191, GF191, GF191)> { (arb_gf191(), arb_gf191(), arb_gf191()) }
+  fn arb_three_gf233() -> impl Strategy<Value = (GF233, GF233, GF233)> { (arb_gf233(), arb_gf233(), arb_gf233()) }
+  fn arb_three_gf257() -> impl Strategy<Value = (GF257, GF257, GF257)> { (arb_gf257(), arb_gf257(), arb_gf257()) }
+  fn arb_three_gf307() -> impl Strategy<Value = (GF307, GF307, GF307)> { (arb_gf307(), arb_gf307(), arb_gf307()) }
+  fn arb_three_gf367() -> impl Strategy<Value = (GF367, GF367, GF367)> { (arb_gf367(), arb_gf367(), arb_gf367()) }
+  fn arb_three_gf431() -> impl Strategy<Value = (GF431, GF431, GF431)> { (arb_gf431(), arb_gf431(), arb_gf431()) }
 
   #[test]
   fn test_random_generation()
@@ -211,7 +151,7 @@ mod tests
     );
   }
 
-  /// Associativity
+  // Associativity
   proptest! {
       #[test]
       fn associativity_test_163((a,b,c) in arb_three_gf163()) {
@@ -273,7 +213,7 @@ mod tests
       }
   }
 
-  /// Square $(a+b)^2 = a^2 + b^2$
+  // Square $(a+b)^2 = a^2 + b^2$
   proptest! {
       #[test]
       fn square_test_163((a,b) in arb_two_gf163()) {
@@ -335,9 +275,9 @@ mod tests
       }
   }
 
-  /// Powering
-  /// $a^{2^{m} - 1} = 1$
-  /// $a^{2^{m}} = a$
+  // Powering
+  // $a^{2^{m} - 1} = 1$
+  // $a^{2^{m}} = a$
   fn calc_pow(m : u32) -> BigUint { (BigUint::one() << m) - BigUint::one() }
 
   proptest! {
@@ -411,7 +351,7 @@ mod tests
       }
   }
 
-  /// Inverse
+  // Inverse
   proptest! {
       #[test]
       fn inverse_test_163(a in arb_gf163()) {
@@ -473,7 +413,7 @@ mod tests
       }
   }
 
-  /// Addition
+  // Addition
 
   proptest! {
       #[test]
@@ -536,7 +476,7 @@ mod tests
       }
   }
 
-  /// Trace
+  // Trace
   proptest! {
       #[test]
       fn trace_test_163((a,b) in arb_two_gf163()) {
@@ -628,7 +568,7 @@ mod tests
       }
   }
 
-  /// HTrace
+  // HTrace
   proptest! {
       #[test]
       fn htrace_test_163((a,b) in arb_two_gf163()) {

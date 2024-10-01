@@ -32,7 +32,7 @@ mod tests
     Ok(())
   }
   #[test]
-  fn test_signing_default() -> dstu4145_rust::error::Result<()>
+  fn test_signing_default2() -> dstu4145_rust::error::Result<()>
   {
     let msg = "hello";
     let mut rng = ChaCha20Rng::from_entropy();
