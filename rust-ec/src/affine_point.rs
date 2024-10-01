@@ -129,7 +129,7 @@ impl<'a, T : GFArithmetic<'a>> AffinePoint<T>
   {
     let mut r = AffinePoint::neutral();
     let mut tmp = self.clone();
-    let n = n.into();
+    let n = n.into() % ec.get_ref_ord();
     // from LSB to MSB
     for x in n.to_str_radix(2).into_bytes().iter().rev()
     {
@@ -137,7 +137,7 @@ impl<'a, T : GFArithmetic<'a>> AffinePoint<T>
       {
         r = r.add(ec, &tmp)
       }
-      tmp = tmp.add(ec, &tmp)
+      tmp = tmp.double(ec)
     }
     r
   }

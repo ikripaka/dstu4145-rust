@@ -108,6 +108,7 @@ pub fn unpack_affine_point<'a, T : GFArithmetic<'a>>(num : &T, ec : &BinaryEC<T>
   AffinePoint::Point { x : x_p_field, y : y_p }
 }
 
+/// Function generates affine point by generating one point and solving quadratic equation.
 pub fn generate_random_affine_point<'a, T : GFArithmetic<'a>>(rng : &mut impl CryptoRngCore, ec : &BinaryEC<T>)
   -> AffinePoint<T>
 {
@@ -120,7 +121,7 @@ pub fn generate_random_affine_point<'a, T : GFArithmetic<'a>>(rng : &mut impl Cr
       let a = ec.a.as_field_el();
       u_3 + a * u_2 + ec.b.clone()
     };
-    if let Some((z, k)) = solve_quadratic_equation_in_field::<T>(&u, &w)
+    if let Some((z, _)) = solve_quadratic_equation_in_field::<T>(&u, &w)
     {
       return AffinePoint::Point { x : u, y : z };
     }
