@@ -137,8 +137,9 @@ pub fn inverse(el : &BigUint, prime_poly : &BigUint) -> BigUint
     let (quotient, remainder) = divide(&r_1, &r_0);
     (r_1, r_0) = (r_0, remainder);
 
-    if r_0.is_zero(){
-      break
+    if r_0.is_zero()
+    {
+      break;
     }
 
     let u_next = {

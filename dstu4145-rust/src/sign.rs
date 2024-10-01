@@ -10,7 +10,7 @@ use poly_algebra::helpers::{create_field_el_from_hash, generate_num};
 use rust_ec::affine_point::AffinePoint;
 use rust_ec::binary_ec::BinaryEC;
 use crate::error::Dstu4145Error;
-use crate::helpers::{calculate_presign, generate_d, transform_field_poly_into_number};
+use crate::helpers::{calculate_presign, transform_field_poly_into_number};
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct Signature
@@ -128,7 +128,7 @@ impl<'a, T : GFArithmetic<'a>> SigningKey<T>
     check_l_d_value(l_d, &ec)?;
     loop
     {
-      let d = generate_d(rng, ec.get_ord());
+      let d = generate_num(rng, ec.get_ref_ord().bits() - 1);
       if !d.is_zero()
       {
         let q = ec.get_ref_bp().mul(&ec, d.clone()).negative();
@@ -215,7 +215,7 @@ pub fn sign<'a, T : GFArithmetic<'a>, D : Digest>(
     let r = y.get_value();
     if !r.is_zero()
     {
-      break (transform_field_poly_into_number(r, ec.get_ord()), e.get_value());
+      break (transform_field_poly_into_number(r, ec.get_ord()), e);
     }
   };
   sign_inner(ec, &r, &e, d, l_d)
@@ -326,11 +326,10 @@ fn check_l_d_value<'a, T : GFArithmetic<'a>>(l_d : u64, ec : &BinaryEC<T>) -> cr
 mod tests
 {
   use num_bigint::BigUint;
-  use rand_chacha::ChaCha20Rng;
-  use rand_chacha::rand_core::SeedableRng;
+  use num_traits::Num;
   use signature::{Signer, Verifier};
-  use poly_algebra::gf::GF163;
-  use poly_algebra::helpers::create_field_el_from_hash;
+  use poly_algebra::gf::{GFArithmetic, GF163};
+  use poly_algebra::helpers::{create_field_el_from_hash, get_string_array_plain};
   use rust_ec::affine_point::AffinePoint;
   use rust_ec::binary_ec::BinaryEC;
   use crate::error::Dstu4145Error;
@@ -340,7 +339,6 @@ mod tests
   #[test]
   fn test_from_doc1() -> crate::error::Result<()>
   {
-    let mut rng = ChaCha20Rng::from_entropy();
     let mut ec = BinaryEC::generate_m163_pb_curve_from_examples();
     let msg = "hello";
 
@@ -350,20 +348,46 @@ mod tests
       hex_literal::hex!("0183F60FDF7951FF47D67193F8D073790C1C9B5A3E"),
       512,
     )?;
-    println!("q: {:X}", pub_key.q);
-    let hash = hex_literal::hex!("09C9C44277910C9AAEE486883A2EB95B7180166DDF73532EEB76EDAEF52247FF").to_vec();
+    assert_eq!(
+      ec.get_bp(),
+      AffinePoint::Point {
+        x : GF163::from_hex_be("072D867F93A93AC27DF9FF01AFFE74885C8C540420")?,
+        y : GF163::from_hex_be("00224A9C3947852B97C5599D5F4AB81122ADC3FD9B")?
+      }
+    );
+    assert_eq!(
+      pub_key.q,
+      AffinePoint::Point {
+        x : GF163::from_hex_be("57DE7FDE023FF929CB6AC785CE4B79CF64ABDC2DA")?,
+        y : GF163::from_hex_be("3E85444324BCF06AD85ABF6AD7B5F34770532B9AA")?
+      }
+    );
+    let hash = hex_literal::hex!("003A2EB95B7180166DDF73532EEB76EDAEF52247FF").to_vec();
     let h = create_field_el_from_hash::<GF163, _>(hash);
-    println!("h: {:X}", h);
+    assert_eq!(h, GF163::from_hex_be("03A2EB95B7180166DDF73532EEB76EDAEF52247FF")?);
     let e = BigUint::from_bytes_be(&hex_literal::hex!("01025E40BD97DB012B7A1D79DE8E12932D247F61C6"));
     let ep = ec.mul(ec.get_ref_bp(), e.clone());
-    println!("eP: {:X}", ep);
+    assert_eq!(
+      ep,
+      AffinePoint::Point {
+        x : GF163::from_hex_be("042A7D756D70E1C9BA62D2CB43707C35204EF3C67C")?,
+        y : GF163::from_hex_be("05310AE5E560464A95DC80286F17EB762EC544B15B")?
+      }
+    );
     let sign = if let AffinePoint::Point { x: x_p, .. } = ep
     {
       let y = h.clone() * x_p;
-      println!("y: {:X}", y);
+      assert_eq!(y, GF163::from_hex_be("0274EA2C0CAA014A0D80A424F59ADE7A93068D08A7")?);
       let r = transform_field_poly_into_number(y, ec.get_ord());
       let sign = sign_inner(&ec, &r, &e, &private_key.d, private_key.l_d)?;
-      println!("r: {:X?}, s: {:X?}", sign.r, sign.s);
+      assert_eq!(
+        sign.r,
+        hex_literal::hex!("0274EA2C0CAA014A0D80A424F59ADE7A93068D08A7").to_vec()
+      );
+      assert_eq!(
+        sign.s,
+        hex_literal::hex!("02100D86957331832B8E8C230F5BD6A332B3615ACA").to_vec()
+      );
       sign
     }
     else
@@ -373,27 +397,40 @@ mod tests
     sign.pack();
 
     // Verifying
-    println!("verifying ");
     let r_original = BigUint::from_bytes_be(&sign.r);
     let s_original = BigUint::from_bytes_be(&sign.s);
-    println!("r: {}, s: {}", s_original.to_str_radix(16), s_original.to_str_radix(16));
+    assert_eq!(
+      sign.r,
+      hex_literal::hex!("0274EA2C0CAA014A0D80A424F59ADE7A93068D08A7").to_vec()
+    );
+    assert_eq!(
+      sign.s,
+      hex_literal::hex!("02100D86957331832B8E8C230F5BD6A332B3615ACA").to_vec()
+    );
     let r = {
       let s_p = ec.mul(ec.get_ref_bp(), s_original.clone());
       let r_q = ec.mul(&pub_key.q, r_original.clone());
       ec.add(&s_p, &r_q)
     };
-    println!("R: {:X}", r);
+    assert_eq!(
+      r,
+      AffinePoint::Point {
+        x : GF163::from_hex_be("042A7D756D70E1C9BA62D2CB43707C35204EF3C67C")?,
+        y : GF163::from_hex_be("05310AE5E560464A95DC80286F17EB762EC544B15B")?
+      }
+    );
     match r
     {
       AffinePoint::Point { x: x_r, .. } =>
       {
-        println!("x_R: {:X}, h: {:X}", x_r, h);
+        assert_eq!(x_r, GF163::from_hex_be("042A7D756D70E1C9BA62D2CB43707C35204EF3C67C")?);
         let y = h.clone() * x_r;
-        println!("y: {:X}", h);
-
+        assert_eq!(y, GF163::from_hex_be("0274EA2C0CAA014A0D80A424F59ADE7A93068D08A7")?);
         let r_dash = transform_field_poly_into_number(y, ec.get_ord());
-        println!("r': {}, r: {}", r_dash.to_str_radix(16), r_original.to_str_radix(16));
-
+        assert_eq!(
+          r_dash,
+          BigUint::from_str_radix("0274EA2C0CAA014A0D80A424F59ADE7A93068D08A7", 16)?
+        );
         if r_original == r_dash
         {
           Ok(())
@@ -405,7 +442,6 @@ mod tests
       }
       AffinePoint::Infinity => Err(Dstu4145Error::GotPointInInfinity),
     }?;
-
     Ok(())
   }
 }

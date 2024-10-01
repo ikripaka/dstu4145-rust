@@ -4,7 +4,8 @@ macro_rules! impl_gf_for_poly {
     impl GFFactory<'_> for $tn
     {
       #[inline]
-      fn new(mut poly : BigUint, prime_poly : BigUint, _ : SealingStruct) -> Self {
+      fn new(mut poly : BigUint, prime_poly : BigUint, _ : SealingStruct) -> Self
+      {
         module_reduction(&mut poly, &prime_poly);
         Self { poly, prime_poly }
       }

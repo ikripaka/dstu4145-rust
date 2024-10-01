@@ -16,6 +16,8 @@ pub enum Dstu4145Error
   GotPointInInfinity,
   #[error("Signature check failed, unequal check values. Please check validity of the keys.")]
   IncorrectSignature,
+  #[error("Failed to parse hex string, check validity of it.")]
+  ParseBigIntError(#[from] num_bigint::ParseBigIntError),
 }
 
 impl Into<signature::Error> for Dstu4145Error

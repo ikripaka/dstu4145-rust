@@ -1,7 +1,7 @@
 use std::marker::PhantomData;
 use num_bigint::BigUint;
 use num_traits::{Num, One, Zero};
-use poly_algebra::gf::{GFArithmetic, GF163, GF167, GF173, GF179, GF191, GF233,  GF257, GF307, GF367, GF431};
+use poly_algebra::gf::{GFArithmetic, GF163, GF167, GF173, GF179, GF191, GF233, GF257, GF307, GF367, GF431};
 use crate::affine_point::AffinePoint;
 use crate::helpers::{pack_affine_point, unpack_affine_point};
 
@@ -310,8 +310,10 @@ impl<'a, T : GFArithmetic<'a>> BinaryEC<T>
 
   /// Function gets big prime order of base point.
   pub fn get_ord(&self) -> BigUint { self.n.clone() }
+
   /// Function gets reference to the big prime order of base point.
   pub fn get_ref_ord(&self) -> &BigUint { &self.n }
+
   /// Function checks whether point belongs to the specified curve
   /// by calculating this equation: $y^2 + xy = x^3 + Ax^2 + B$.
   pub fn check_affine_point(&self, point : AffinePoint<T>) -> bool
@@ -325,6 +327,7 @@ impl<'a, T : GFArithmetic<'a>> BinaryEC<T>
       AffinePoint::Infinity => false,
     }
   }
+
   /// Function performs _packing_ of point that has odd prime order in EC over GF(2^m)
   /// according to the algorithm `6.9`.
   /// Overrides function from [AffinePoint::unpack].
@@ -337,11 +340,11 @@ impl<'a, T : GFArithmetic<'a>> BinaryEC<T>
 
   /// Function performs addition in affine coordinates.
   /// Related to function [AffinePoint::add].
-  pub fn add(&self, p: &AffinePoint<T>, q: &AffinePoint<T>) -> AffinePoint<T> { p.add(self, q) }
+  pub fn add(&self, p : &AffinePoint<T>, q : &AffinePoint<T>) -> AffinePoint<T> { p.add(self, q) }
 
   /// Function performs doubling of point in affine coordinates.
   /// Related to function [AffinePoint::double].
-  pub fn double(&self, p: &AffinePoint<T>) -> AffinePoint<T> { p.double(self) }
+  pub fn double(&self, p : &AffinePoint<T>) -> AffinePoint<T> { p.double(self) }
 
   /// Function performs multiplication on number in affine coordinates.
   /// Related to function [AffinePoint::mul].

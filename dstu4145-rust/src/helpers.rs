@@ -9,12 +9,11 @@ use rust_ec::binary_ec::BinaryEC;
 use crate::sign::Signature;
 
 /// Function calculates presign and returns tuple `(e, F_e)`
-pub fn calculate_presign<'a, T : GFArithmetic<'a>>(rng : &mut impl CryptoRngCore, ec : &BinaryEC<T>) -> (T, T)
+pub fn calculate_presign<'a, T : GFArithmetic<'a>>(rng : &mut impl CryptoRngCore, ec : &BinaryEC<T>) -> (BigUint, T)
 {
   loop
   {
-    // todo: incorrect e generating  <n!
-    let e = T::rand(rng);
+    let e = generate_num(rng, ec.get_ref_ord().bits() - 1);
     let r = ec.get_ref_bp().mul(ec, e.clone());
     if let AffinePoint::Point { x: x_p, .. } = r
     {
@@ -31,5 +30,3 @@ pub fn transform_field_poly_into_number<T1 : Into<BigUint>, T2 : Into<BigUint>>(
   let mask = (BigUint::one() << (n.into().bits() - 1)) - BigUint::one();
   poly.into() & mask
 }
-
-pub fn generate_d<T : Into<BigUint>>(rng : &mut impl CryptoRngCore, n : T) -> BigUint { generate_num(rng, n.into().bits() - 1) }
