@@ -15,4 +15,4 @@ Cargo.lock
 
 .idea/
 .vscode/
-./tests/integration_tests.proptest-regressions
+/tests/integration_tests.proptest-regressions
