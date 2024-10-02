@@ -9,7 +9,7 @@ use crate::helpers::{pack_affine_point, unpack_affine_point};
 /// Koblitz elliptic curve over binary field that is represented by equation:
 /// $y^2 + xy = x^3 + Ax^2 + B$, where $A, B \in GF(2^m)$, $A = {0, 1}$, $B != 0$.
 /// As you would expect this [BinaryEC] struct you can use with `GF` fields declared
-/// in the `poly-algebra` library.
+/// in the `poly_algebra` library.
 #[derive(Clone, Eq, PartialEq, Hash)]
 pub struct BinaryEC<T>
 {

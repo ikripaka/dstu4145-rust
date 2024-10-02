@@ -19,6 +19,7 @@ num-bigint.workspace = true
 thiserror.workspace = true
 rand_chacha.workspace = true
 sha3.workspace = true
+bytes.workspace = true
 
 [dev-dependencies]
 hex-literal.workspace = true

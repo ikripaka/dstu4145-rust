@@ -32,7 +32,7 @@ pub fn to_binary_le(x : &BigUint) -> String
   let tmp = x.to_radix_le(2);
   let tmp = tmp.iter().map(|x| format!("{:b}", x)).collect::<Vec<String>>();
   let tmp = tmp.iter().fold(String::new(), |mut acc, x| {
-    acc += &x;
+    acc += x;
     acc
   });
   tmp
@@ -44,7 +44,7 @@ pub fn to_binary_be(x : &BigUint) -> String
   let tmp = x.to_radix_be(2);
   let tmp = tmp.iter().map(|x| format!("{:b}", x)).collect::<Vec<String>>();
   let tmp = tmp.iter().fold(String::new(), |mut acc, x| {
-    acc += &x;
+    acc += x;
     acc
   });
   let x = tmp.trim_start_matches("0");
@@ -64,7 +64,7 @@ pub fn to_lower_hex_le(x : &BigUint) -> String
   let tmp = x.to_radix_le(16);
   let tmp = tmp.iter().map(|x| format!("{:x?}", x)).collect::<Vec<String>>();
   let tmp = tmp.iter().fold(String::new(), |mut acc, x| {
-    acc += &x;
+    acc += x;
     acc
   });
   tmp
@@ -76,7 +76,7 @@ pub fn to_lower_hex_be(x : &BigUint) -> String
   let tmp = x.to_radix_be(16);
   let tmp = tmp.iter().map(|x| format!("{:x?}", x)).collect::<Vec<String>>();
   let tmp = tmp.iter().fold(String::new(), |mut acc, x| {
-    acc += &x;
+    acc += x;
     acc
   });
   let x = tmp.trim_start_matches("0");
@@ -114,7 +114,7 @@ const BITS_INTO_BYTE : u128 = 8;
 pub fn generate_num<T : Into<u128>>(rng : &mut impl CryptoRngCore, bit_len : T) -> BigUint
 {
   let bit_len = bit_len.into();
-  let gen_tries = (&bit_len / BITS_INTO_BYTE) / BYTES_INTO_U32;
+  let gen_tries = (bit_len / BITS_INTO_BYTE) / BYTES_INTO_U32;
   let bits_to_fit = bit_len - gen_tries * BITS_IN_U32;
   let mut res = BigUint::zero();
   for _ in 0 .. gen_tries

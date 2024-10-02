@@ -10,6 +10,8 @@ pub enum Dstu4145Error
   InvalidParams(String),
   #[error("Invalid param length, desired: {0}, got: {1}, param name: '{2}'.")]
   InvalidParamLength(u64, u64, String),
+  #[error("Invalid L_D param length, desired properties: '{0}', got: {1}.")]
+  InvalidLDLength(String, u64),
   #[error("Got signature error: {0}.")]
   GotSignatureError(#[from] signature::Error),
   #[error("Got point in infinity on verifying signature, please check validity of the signature.")]
@@ -18,9 +20,13 @@ pub enum Dstu4145Error
   IncorrectSignature,
   #[error("Failed to parse hex string, check validity of it.")]
   ParseBigIntError(#[from] num_bigint::ParseBigIntError),
+  #[error("Failed to check correctness of public key, error: '{0}'")]
+  FailedPublicKeyCheck(String),
 }
 
-impl Into<signature::Error> for Dstu4145Error
+impl From<Dstu4145Error> for signature::Error
 {
-  fn into(self) -> Error { Error::from_source(self) }
+  fn from(value: Dstu4145Error) -> Self {
+    Error::from_source(value)
+  }
 }

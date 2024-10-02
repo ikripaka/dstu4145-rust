@@ -21,13 +21,19 @@ macro_rules! impl_gf_for_poly {
 
       #[inline]
       fn get_value(&self) -> BigUint { self.poly.clone() }
+
+      #[inline]
+      fn get_ref_prime_poly(&self) -> &BigUint { &self.prime_poly }
+
+      #[inline]
+      fn get_ref_value(&self) -> &BigUint { &self.poly }
     }
 
     impl<'a> GFArithmetic<'a> for $tn
     {
       fn rand(rng : &mut impl CryptoRngCore) -> Self
       {
-        <Self as GFArithmetic>::from_poly(crate::helpers::generate_num(rng, Self::get_m()))
+        <Self as GFArithmetic>::from_poly($crate::helpers::generate_num(rng, Self::get_m()))
       }
 
       fn get_m() -> u32 { $p_poly_slice[0] }
@@ -148,7 +154,6 @@ macro_rules! impl_gf_for_poly {
       }
     }
 
-    ///
     impl Mul<BigUint> for $tn
     {
       type Output = $tn;
@@ -296,9 +301,11 @@ macro_rules! impl_gf_conversions {
       }
     }
 
-    impl Into<BigUint> for $tn
+    impl From<$tn> for BigUint
     {
-      fn into(self) -> BigUint { self.poly }
+      fn from(value: $tn) -> Self {
+        value.poly
+      }
     }
   };
 }

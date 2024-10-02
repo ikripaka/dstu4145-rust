@@ -1,17 +1,19 @@
 use num_bigint::BigUint;
 use num_traits::{ToBytes, Zero};
-use rand_chacha::{ChaCha20Core, ChaCha20Rng};
+use rand_chacha::{ChaCha20Rng};
 use rand_chacha::rand_core::SeedableRng;
 use signature::{DigestSigner, DigestVerifier, Error, RandomizedSigner, Signer, Verifier};
 use signature::digest::Digest;
 use signature::rand_core::CryptoRngCore;
+use bytes::{BytesMut};
 use poly_algebra::gf::GFArithmetic;
 use poly_algebra::helpers::{create_field_el_from_hash, generate_num};
 use rust_ec::affine_point::AffinePoint;
 use rust_ec::binary_ec::BinaryEC;
 use crate::error::Dstu4145Error;
-use crate::helpers::{calculate_presign, transform_field_poly_into_number};
+use crate::helpers::{calculate_presign, check_public_key_correctness, transform_field_poly_into_number};
 
+/// Struct saves signature info as output structure.
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct Signature
 {
@@ -20,6 +22,7 @@ pub struct Signature
   l_d : u64,
 }
 
+/// Struct that characterize __Private key__ for making digital signature.
 #[derive(Clone, Eq, PartialEq, Hash)]
 pub struct VerifyingKey<T>
 {
@@ -28,6 +31,14 @@ pub struct VerifyingKey<T>
   l_d : u64,
 }
 
+pub struct VerifyingKeyConstructor<T>
+{
+  pub ec : BinaryEC<T>,
+  pub q : T,
+  pub l_d : u64,
+}
+
+/// Struct that characterize __Public key__ for checking digital signature.
 #[derive(Clone, Eq, PartialEq, Hash)]
 pub struct SigningKey<T>
 {
@@ -41,15 +52,18 @@ impl<'a, T : GFArithmetic<'a>> Verifier<Signature> for VerifyingKey<T>
   {
     let mut digest = sha3::Sha3_512::new();
     digest.update(msg);
-    match verify(&self.ec, digest, &self.q, &signature.r, &signature.s)
+    if signature.l_d != self.l_d
     {
-      Ok(_) => Ok(()),
-      Err(e) =>
-      {
-        let e : Box<(dyn std::error::Error + Send + Sync + 'static)> = Box::new(e);
-        Err(Error::from(e))
-      }
+      let e : Box<(dyn std::error::Error + Send + Sync + 'static)> = Box::new(Dstu4145Error::InvalidParams(format!(
+        "Unequal L_D param in both structs, VerifyingKey.l_d: {}, Signature.l_d: {}",
+        self.l_d, signature.l_d
+      )));
+      return Err(Error::from(e));
     }
+    verify(&self.ec, digest, &self.q, &signature.r, &signature.s, signature.l_d).map_err(|e| {
+      let e : Box<(dyn std::error::Error + Send + Sync + 'static)> = Box::new(e);
+      Error::from(e)
+    })
   }
 }
 
@@ -57,15 +71,18 @@ impl<'a, T : GFArithmetic<'a>, D : Digest> DigestVerifier<D, Signature> for Veri
 {
   fn verify_digest(&self, digest : D, signature : &Signature) -> Result<(), Error>
   {
-    match verify(&self.ec, digest, &self.q, &signature.r, &signature.s)
+    if signature.l_d != self.l_d
     {
-      Ok(_) => Ok(()),
-      Err(e) =>
-      {
-        let e : Box<(dyn std::error::Error + Send + Sync + 'static)> = Box::new(e);
-        Err(Error::from(e))
-      }
+      let e : Box<(dyn std::error::Error + Send + Sync + 'static)> = Box::new(Dstu4145Error::InvalidParams(format!(
+        "Unequal L_D param in both structs, VerifyingKey.l_d: {}, Signature.l_d: {}",
+        self.l_d, signature.l_d
+      )));
+      return Err(Error::from(e));
     }
+    verify(&self.ec, digest, &self.q, &signature.r, &signature.s, signature.l_d).map_err(|e| {
+      let e : Box<(dyn std::error::Error + Send + Sync + 'static)> = Box::new(e);
+      Error::from(e)
+    })
   }
 }
 impl<'a, T : GFArithmetic<'a>> Signer<Signature> for SigningKey<T>
@@ -75,15 +92,10 @@ impl<'a, T : GFArithmetic<'a>> Signer<Signature> for SigningKey<T>
     let mut rng = ChaCha20Rng::from_entropy();
     let mut digest = sha3::Sha3_512::new();
     digest.update(msg);
-    match sign(&mut rng, &self.ec, digest, &self.d, self.l_d)
-    {
-      Ok(s) => Ok(s),
-      Err(e) =>
-      {
-        let e : Box<(dyn std::error::Error + Send + Sync + 'static)> = Box::new(e);
-        Err(Error::from(e))
-      }
-    }
+    sign(&mut rng, &self.ec, digest, &self.d, self.l_d).map_err(|e| {
+      let e : Box<(dyn std::error::Error + Send + Sync + 'static)> = Box::new(e);
+      Error::from(e)
+    })
   }
 }
 impl<'a, T : GFArithmetic<'a>> RandomizedSigner<Signature> for SigningKey<T>
@@ -92,15 +104,10 @@ impl<'a, T : GFArithmetic<'a>> RandomizedSigner<Signature> for SigningKey<T>
   {
     let mut digest = sha3::Sha3_512::new();
     digest.update(msg);
-    match sign(rng, &self.ec, digest, &self.d, self.l_d)
-    {
-      Ok(s) => Ok(s),
-      Err(e) =>
-      {
-        let e : Box<(dyn std::error::Error + Send + Sync + 'static)> = Box::new(e);
-        Err(Error::from(e))
-      }
-    }
+    sign(rng, &self.ec, digest, &self.d, self.l_d).map_err(|e| {
+      let e : Box<(dyn std::error::Error + Send + Sync + 'static)> = Box::new(e);
+      Error::from(e)
+    })
   }
 }
 
@@ -109,20 +116,16 @@ impl<'a, T : GFArithmetic<'a>, D : Digest> DigestSigner<D, Signature> for Signin
   fn try_sign_digest(&self, digest : D) -> Result<Signature, Error>
   {
     let mut rng = ChaCha20Rng::from_entropy();
-    match sign(&mut rng, &self.ec, digest, &self.d, self.l_d)
-    {
-      Ok(s) => Ok(s),
-      Err(e) =>
-      {
-        let e : Box<(dyn std::error::Error + Send + Sync + 'static)> = Box::new(e);
-        Err(Error::from(e))
-      }
-    }
+    sign(&mut rng, &self.ec, digest, &self.d, self.l_d).map_err(|e| {
+      let e : Box<(dyn std::error::Error + Send + Sync + 'static)> = Box::new(e);
+      Error::from(e)
+    })
   }
 }
 
 impl<'a, T : GFArithmetic<'a>> SigningKey<T>
 {
+  /// Function generates __Private key__ from PRNG.
   pub fn generate(rng : &mut impl CryptoRngCore, ec : BinaryEC<T>, l_d : u64) -> crate::error::Result<(Self, VerifyingKey<T>)>
   {
     check_l_d_value(l_d, &ec)?;
@@ -137,20 +140,21 @@ impl<'a, T : GFArithmetic<'a>> SigningKey<T>
     }
   }
 
+  /// Function creates __Private key__ from given values that may be pregenerated.
   pub fn from_secret<B : AsRef<[u8]>>(ec : BinaryEC<T>, d : B, l_d : u64) -> crate::error::Result<(Self, VerifyingKey<T>)>
   {
     check_l_d_value(l_d, &ec)?;
-    let desired_length = ec.get_ref_ord().bits();
+    let desired_length = ec.get_ref_ord().bits() - 1;
     let d = BigUint::from_bytes_be(d.as_ref());
     if d.bits() > desired_length
     {
       return Err(Dstu4145Error::InvalidParamLength(desired_length, d.bits(), "d".to_string()));
     }
-    println!("d: {:X}, bp: {:X}", d, ec.get_bp());
     let q = ec.get_ref_bp().mul(&ec, d.clone()).negative();
     Ok((Self { ec : ec.clone(), d, l_d }, VerifyingKey { ec, q, l_d }))
   }
 
+  /// Function checks on correctness __Public key__ on correctness. To reduce amount of incorrect signature.
   pub fn verify_verifying_key(&self, verifying_key : &VerifyingKey<T>) -> crate::error::Result<()>
   {
     if self.ec != verifying_key.ec
@@ -191,14 +195,76 @@ impl<'a, T : GFArithmetic<'a>> SigningKey<T>
 
 impl Signature
 {
+  /// Function packs signature into bytes according to the algorithm ``.
   pub fn pack(&self) -> Vec<u8>
   {
-    // todo!();
-    vec![]
+    let element_size = ((self.l_d >> 1) / 8) as usize;
+    let mut buf = BytesMut::zeroed(element_size - self.s.len());
+    buf.extend(&self.s);
+    buf.extend(&BytesMut::zeroed(element_size - self.r.len()));
+    buf.extend(&self.r);
+    buf.to_vec()
+  }
+
+  pub fn get_r(&self) -> Vec<u8> { self.r.clone() }
+
+  pub fn get_ref_r(&self) -> &[u8] { &self.r }
+
+  pub fn get_s(&self) -> Vec<u8> { self.s.clone() }
+
+  pub fn get_ref_s(&self) -> &[u8] { &self.s }
+
+  pub fn get_l_d(&self) -> u64 { self.l_d }
+}
+impl TryFrom<&[u8]> for Signature
+{
+  type Error = Dstu4145Error;
+
+  fn try_from(value : &[u8]) -> Result<Self, Self::Error>
+  {
+    let mut buf = BytesMut::from(value);
+    let l_d = buf.len();
+    let l_d_bits = l_d * 8;
+    if l_d_bits % 16 != 0
+    {
+      return Err(Dstu4145Error::InvalidLDLength(
+        "Length has to be divisible onto 16".to_string(),
+        l_d_bits as u64,
+      ));
+    }
+    let s = buf.split_to(l_d >> 1);
+    Ok(Signature {
+      r : buf.to_vec(),
+      s : s.to_vec(),
+      l_d : l_d_bits as u64,
+    })
   }
 }
 
-pub fn sign<'a, T : GFArithmetic<'a>, D : Digest>(
+impl<'a, T : GFArithmetic<'a>> VerifyingKey<T>
+{
+  /// Function returns as output - packed public key `Q` into bytes.
+  pub fn pack(&self) -> Vec<u8> { self.q.pack().get_value().to_bytes_be() }
+}
+
+impl<'a, T : GFArithmetic<'a>> TryFrom<VerifyingKeyConstructor<T>> for VerifyingKey<T>
+{
+  type Error = Dstu4145Error;
+
+  fn try_from(value : VerifyingKeyConstructor<T>) -> Result<Self, Self::Error>
+  {
+    check_l_d_value(value.l_d, &value.ec)?;
+    let q = check_public_key_correctness(&value.ec, &value.q)?;
+    Ok(VerifyingKey {
+      ec : value.ec,
+      q,
+      l_d : value.l_d,
+    })
+  }
+}
+
+/// Function performs creating of the signature to the specific message.
+fn sign<'a, T : GFArithmetic<'a>, D : Digest>(
   rng : &mut impl CryptoRngCore,
   ec : &BinaryEC<T>,
   digest : D,
@@ -221,6 +287,7 @@ pub fn sign<'a, T : GFArithmetic<'a>, D : Digest>(
   sign_inner(ec, &r, &e, d, l_d)
 }
 
+/// Function performs last step of signing.
 fn sign_inner<'a, T : GFArithmetic<'a>>(
   ec : &BinaryEC<T>,
   r : &BigUint,
@@ -229,15 +296,7 @@ fn sign_inner<'a, T : GFArithmetic<'a>>(
   l_d : u64,
 ) -> crate::error::Result<Signature>
 {
-  println!(
-    "e: {}, \n d: {},\n r: {},\n n: {}",
-    e.to_str_radix(16),
-    d.to_str_radix(16),
-    r.to_str_radix(16),
-    ec.get_ord().to_str_radix(16)
-  );
   let s = (e.clone() + d * r) % ec.get_ord();
-  println!("r: {}, s: {}", r.to_str_radix(16), s.to_str_radix(16));
   Ok(Signature {
     r : r.to_be_bytes().to_vec(),
     s : s.to_be_bytes().to_vec(),
@@ -245,18 +304,20 @@ fn sign_inner<'a, T : GFArithmetic<'a>>(
   })
 }
 
-pub fn verify<'a, T : GFArithmetic<'a>, D : Digest>(
+/// Function verifies whether the given signature is correct.
+fn verify<'a, T : GFArithmetic<'a>, D : Digest>(
   ec : &BinaryEC<T>,
   digest : D,
   q : &AffinePoint<T>,
   r : &[u8],
   s : &[u8],
+  l_d : u64,
 ) -> crate::error::Result<()>
 {
-  //todo: maybe somehow check L_d?
+  check_l_d_value(l_d, ec)?;
   let hash = digest.finalize().to_vec();
   let h = create_field_el_from_hash::<T, _>(hash);
-  /// Check `r`, `s` validity
+  // Check `r`, `s` validity
   let r_original = BigUint::from_bytes_be(r);
   if r_original > *ec.get_ref_ord()
   {
@@ -278,6 +339,7 @@ pub fn verify<'a, T : GFArithmetic<'a>, D : Digest>(
   verify_inner(ec, q, &h, &r_original, &s_original)
 }
 
+/// Function performs last step of verifying signature.
 fn verify_inner<'a, T : GFArithmetic<'a>>(
   ec : &BinaryEC<T>,
   q : &AffinePoint<T>,
@@ -310,6 +372,9 @@ fn verify_inner<'a, T : GFArithmetic<'a>>(
   }
 }
 
+/// Function checks $L_D$ value to conform next properties:
+/// * $L_D$ has to be divisible into 16;
+/// * $L_D$ has to be >= than $L_n$ value.
 fn check_l_d_value<'a, T : GFArithmetic<'a>>(l_d : u64, ec : &BinaryEC<T>) -> crate::error::Result<()>
 {
   if l_d % 16 != 0 || l_d < 2 * ec.get_ref_ord().bits()
@@ -323,7 +388,7 @@ fn check_l_d_value<'a, T : GFArithmetic<'a>>(l_d : u64, ec : &BinaryEC<T>) -> cr
 }
 
 #[cfg(test)]
-mod tests
+mod tests_from_docs
 {
   use num_bigint::BigUint;
   use num_traits::Num;

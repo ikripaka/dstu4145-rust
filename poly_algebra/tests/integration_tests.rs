@@ -30,8 +30,6 @@ mod tests
       .prop_map(|bytes| BigUint::from_bytes_le(&bytes))
       .prop_filter("BigUint should not be zero", |n| *n != BigUint::zero())
   }
-  fn arb_two_biguints() -> impl Strategy<Value = (BigUint, BigUint)> { (arb_biguint(), arb_biguint()) }
-  fn arb_three_biguints() -> impl Strategy<Value = (BigUint, BigUint, BigUint)> { (arb_biguint(), arb_biguint(), arb_biguint()) }
   fn arb_gf163() -> impl Strategy<Value = GF163> { arb_biguint().prop_map(|x| GF163::from(x)) }
   fn arb_gf167() -> impl Strategy<Value = GF167> { arb_biguint().prop_map(|x| GF167::from(x)) }
   fn arb_gf173() -> impl Strategy<Value = GF173> { arb_biguint().prop_map(|x| GF173::from(x)) }

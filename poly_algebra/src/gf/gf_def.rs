@@ -85,12 +85,12 @@ pub trait GFArithmetic<'a>:
   }
   fn rand(rng : &mut impl CryptoRngCore) -> Self;
   fn get_m() -> u32;
-  fn trace(&self) -> BigUint { trace(&self.get_value(), &self.get_prime_poly()) }
-  fn htrace(&self) -> BigUint { htrace(&self.get_value(), &self.get_prime_poly()) }
+  fn trace(&self) -> BigUint { trace(self.get_ref_value(), self.get_ref_prime_poly()) }
+  fn htrace(&self) -> BigUint { htrace(self.get_ref_value(), self.get_ref_prime_poly()) }
   fn inverse(&self) -> Self
   {
     <Self as GFFactory>::new(
-      inverse(&self.get_value(), &self.get_prime_poly()),
+      inverse(self.get_ref_value(), self.get_ref_prime_poly()),
       self.get_prime_poly(),
       SealingStruct {},
     )
@@ -98,14 +98,14 @@ pub trait GFArithmetic<'a>:
   fn square(&self) -> Self
   {
     let mut poly = self.get_value();
-    square(&mut poly, &self.get_prime_poly());
+    square(&mut poly, self.get_ref_prime_poly());
     <Self as GFFactory>::new(poly, self.get_prime_poly(), SealingStruct {})
   }
 
   fn pow<T : Into<BigUint>>(&self, power : T) -> Self
   {
     let mut poly = self.get_value();
-    pow(&mut poly, &self.get_prime_poly(), &power.into());
+    pow(&mut poly, self.get_ref_prime_poly(), &power.into());
     <Self as GFFactory>::new(poly, self.get_prime_poly(), SealingStruct {})
   }
 }
@@ -114,27 +114,29 @@ pub trait GFGetters
 {
   fn get_prime_poly(&self) -> BigUint;
   fn get_value(&self) -> BigUint;
+  fn get_ref_prime_poly(&self) -> &BigUint;
+  fn get_ref_value(&self) -> &BigUint;
 }
 pub trait GFDisplay: GFGetters
 {
-  fn to_binary_le(&self) -> String { to_binary_le(&self.get_value()) }
-  fn to_binary_be(&self) -> String { to_binary_be(&self.get_value()) }
-  fn to_lower_hex_le(&self) -> String { to_lower_hex_le(&self.get_value()) }
-  fn to_lower_hex_be(&self) -> String { to_lower_hex_be(&self.get_value()) }
-  fn to_upper_hex_le(&self) -> String { to_upper_hex_le(&self.get_value()) }
-  fn to_upper_hex_be(&self) -> String { to_upper_hex_be(&self.get_value()) }
+  fn to_binary_le(&self) -> String { to_binary_le(self.get_ref_value()) }
+  fn to_binary_be(&self) -> String { to_binary_be(self.get_ref_value()) }
+  fn to_lower_hex_le(&self) -> String { to_lower_hex_le(self.get_ref_value()) }
+  fn to_lower_hex_be(&self) -> String { to_lower_hex_be(self.get_ref_value()) }
+  fn to_upper_hex_le(&self) -> String { to_upper_hex_le(self.get_ref_value()) }
+  fn to_upper_hex_be(&self) -> String { to_upper_hex_be(self.get_ref_value()) }
 }
 
-const GF163_PRECALC_PRIME_POLY : LazyLock<BigUint> = LazyLock::new(|| create_prime_polynomial(&GF163_PRIME_POLY));
-const GF167_PRECALC_PRIME_POLY : LazyLock<BigUint> = LazyLock::new(|| create_prime_polynomial(&GF167_PRIME_POLY));
-const GF173_PRECALC_PRIME_POLY : LazyLock<BigUint> = LazyLock::new(|| create_prime_polynomial(&GF173_PRIME_POLY));
-const GF179_PRECALC_PRIME_POLY : LazyLock<BigUint> = LazyLock::new(|| create_prime_polynomial(&GF179_PRIME_POLY));
-const GF191_PRECALC_PRIME_POLY : LazyLock<BigUint> = LazyLock::new(|| create_prime_polynomial(&GF191_PRIME_POLY));
-const GF233_PRECALC_PRIME_POLY : LazyLock<BigUint> = LazyLock::new(|| create_prime_polynomial(&GF233_PRIME_POLY));
-const GF257_PRECALC_PRIME_POLY : LazyLock<BigUint> = LazyLock::new(|| create_prime_polynomial(&GF257_PRIME_POLY));
-const GF307_PRECALC_PRIME_POLY : LazyLock<BigUint> = LazyLock::new(|| create_prime_polynomial(&GF307_PRIME_POLY));
-const GF367_PRECALC_PRIME_POLY : LazyLock<BigUint> = LazyLock::new(|| create_prime_polynomial(&GF367_PRIME_POLY));
-const GF431_PRECALC_PRIME_POLY : LazyLock<BigUint> = LazyLock::new(|| create_prime_polynomial(&GF431_PRIME_POLY));
+static GF163_PRECALC_PRIME_POLY : LazyLock<BigUint> = LazyLock::new(|| create_prime_polynomial(&GF163_PRIME_POLY));
+static GF167_PRECALC_PRIME_POLY : LazyLock<BigUint> = LazyLock::new(|| create_prime_polynomial(&GF167_PRIME_POLY));
+static GF173_PRECALC_PRIME_POLY : LazyLock<BigUint> = LazyLock::new(|| create_prime_polynomial(&GF173_PRIME_POLY));
+static GF179_PRECALC_PRIME_POLY : LazyLock<BigUint> = LazyLock::new(|| create_prime_polynomial(&GF179_PRIME_POLY));
+static GF191_PRECALC_PRIME_POLY : LazyLock<BigUint> = LazyLock::new(|| create_prime_polynomial(&GF191_PRIME_POLY));
+static GF233_PRECALC_PRIME_POLY : LazyLock<BigUint> = LazyLock::new(|| create_prime_polynomial(&GF233_PRIME_POLY));
+static GF257_PRECALC_PRIME_POLY : LazyLock<BigUint> = LazyLock::new(|| create_prime_polynomial(&GF257_PRIME_POLY));
+static GF307_PRECALC_PRIME_POLY : LazyLock<BigUint> = LazyLock::new(|| create_prime_polynomial(&GF307_PRIME_POLY));
+static GF367_PRECALC_PRIME_POLY : LazyLock<BigUint> = LazyLock::new(|| create_prime_polynomial(&GF367_PRIME_POLY));
+static GF431_PRECALC_PRIME_POLY : LazyLock<BigUint> = LazyLock::new(|| create_prime_polynomial(&GF431_PRIME_POLY));
 /// GF 2^163 over prime polynomial `x^163 + x^7 + x^6 + x^3 + 1`.
 #[derive(Hash, Eq, PartialEq, Clone)]
 pub struct GF163
