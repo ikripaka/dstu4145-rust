@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["dstu4145-rust", "poly_algebra", "rust-ec"]
+members = ["dstu4145-rust", "poly_algebra", "rust-ec", "examples"]
 description = "Rust-native library for calulating specific Dstu 4145-2002 sign."
 readme = "Readme.md"
 rust-version = "1.81.0"

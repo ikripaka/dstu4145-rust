@@ -839,13 +839,19 @@ mod tests
       #[test]
       fn point_generation_test_163(p in arb_affine_point_gf163()) {
         let ec = BinaryEC::<GF163>::generate_m163_pb_curve();
-        assert!(ec.check_affine_point(&p))
+        let mut rng = ChaCha20Rng::from_entropy();
+        let random_p = ec.generate_random_affine_point(&mut rng);
+        assert!(ec.check_affine_point(&random_p));
+        assert!(ec.check_affine_point(&p));
       }
   }
   proptest! {
       #[test]
       fn point_generation_test_167(p in arb_affine_point_gf167()) {
         let ec = BinaryEC::<GF167>::generate_m167_pb_curve();
+        let mut rng = ChaCha20Rng::from_entropy();
+        let random_p = ec.generate_random_affine_point(&mut rng);
+        assert!(ec.check_affine_point(&random_p));
         assert!(ec.check_affine_point(&p))
       }
   }
@@ -853,13 +859,19 @@ mod tests
       #[test]
       fn point_generation_test_173(p in arb_affine_point_gf173()) {
         let ec = BinaryEC::<GF173>::generate_m173_pb_curve();
+        let mut rng = ChaCha20Rng::from_entropy();
+        let random_p = ec.generate_random_affine_point(&mut rng);
+        assert!(ec.check_affine_point(&random_p));
         assert!(ec.check_affine_point(&p))
       }
   }
   proptest! {
       #[test]
       fn point_generation_test_179(p in arb_affine_point_gf179()) {
-         let ec = BinaryEC::<GF179>::generate_m179_pb_curve();
+        let ec = BinaryEC::<GF179>::generate_m179_pb_curve();
+        let mut rng = ChaCha20Rng::from_entropy();
+        let random_p = ec.generate_random_affine_point(&mut rng);
+        assert!(ec.check_affine_point(&random_p));
         assert!(ec.check_affine_point(&p))
       }
   }
@@ -867,6 +879,9 @@ mod tests
       #[test]
       fn point_generation_test_191(p in arb_affine_point_gf191()) {
         let ec = BinaryEC::<GF191>::generate_m191_pb_curve();
+        let mut rng = ChaCha20Rng::from_entropy();
+        let random_p = ec.generate_random_affine_point(&mut rng);
+        assert!(ec.check_affine_point(&random_p));
         assert!(ec.check_affine_point(&p))
       }
   }
@@ -874,6 +889,9 @@ mod tests
       #[test]
       fn point_generation_test_233(p in arb_affine_point_gf233()) {
          let ec = BinaryEC::<GF233>::generate_m233_pb_curve();
+        let mut rng = ChaCha20Rng::from_entropy();
+        let random_p = ec.generate_random_affine_point(&mut rng);
+        assert!(ec.check_affine_point(&random_p));
         assert!(ec.check_affine_point(&p))
       }
   }
@@ -881,6 +899,9 @@ mod tests
       #[test]
       fn point_generation_test_257(p in arb_affine_point_gf257()) {
         let ec = BinaryEC::<GF257>::generate_m257_pb_curve();
+        let mut rng = ChaCha20Rng::from_entropy();
+        let random_p = ec.generate_random_affine_point(&mut rng);
+        assert!(ec.check_affine_point(&random_p));
         assert!(ec.check_affine_point(&p))
       }
   }
@@ -888,6 +909,9 @@ mod tests
       #[test]
       fn point_generation_test_307(p in arb_affine_point_gf307()) {
         let ec = BinaryEC::<GF307>::generate_m307_pb_curve();
+        let mut rng = ChaCha20Rng::from_entropy();
+        let random_p = ec.generate_random_affine_point(&mut rng);
+        assert!(ec.check_affine_point(&random_p));
         assert!(ec.check_affine_point(&p))
       }
   }
@@ -895,6 +919,9 @@ mod tests
       #[test]
       fn point_generation_test_367(p in arb_affine_point_gf367()) {
         let ec = BinaryEC::<GF367>::generate_m367_pb_curve();
+        let mut rng = ChaCha20Rng::from_entropy();
+        let random_p = ec.generate_random_affine_point(&mut rng);
+        assert!(ec.check_affine_point(&random_p));
         assert!(ec.check_affine_point(&p))
       }
   }
@@ -902,6 +929,9 @@ mod tests
       #[test]
       fn point_generation_test_431(p in arb_affine_point_gf431()) {
         let ec = BinaryEC::<GF431>::generate_m431_pb_curve();
+        let mut rng = ChaCha20Rng::from_entropy();
+        let random_p = ec.generate_random_affine_point(&mut rng);
+        assert!(ec.check_affine_point(&random_p));
         assert!(ec.check_affine_point(&p))
       }
   }

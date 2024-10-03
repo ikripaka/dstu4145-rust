@@ -25,10 +25,7 @@ impl<'a, T : GFArithmetic<'a>> AffinePoint<T>
   pub fn rand(rng : &mut impl CryptoRngCore, ec : &BinaryEC<T>) -> Self { generate_random_affine_point(rng, ec) }
 
   /// Checks whether point is $O_e$.
-  pub fn is_inf(&self) -> bool
-  {
-    matches!(self, Self::Infinity)
-  }
+  pub fn is_inf(&self) -> bool { matches!(self, Self::Infinity) }
 
   /// Function gets neutral point in the affine coordinates. Generally it's point at infinity i.e. $O_e$.
   pub fn neutral() -> AffinePoint<T> { AffinePoint::Infinity }
@@ -178,10 +175,7 @@ impl<'a, T : GFArithmetic<'a>> fmt::LowerHex for AffinePoint<T>
   {
     match self
     {
-      AffinePoint::Point { x, y } => write_into_formatter(
-        Some((x.to_lower_hex_be(), y.to_lower_hex_be())),
-        f,
-      ),
+      AffinePoint::Point { x, y } => write_into_formatter(Some((x.to_lower_hex_be(), y.to_lower_hex_be())), f),
       AffinePoint::Infinity => write_into_formatter(None, f),
     }
   }
@@ -193,10 +187,7 @@ impl<'a, T : GFArithmetic<'a>> fmt::UpperHex for AffinePoint<T>
   {
     match self
     {
-      AffinePoint::Point { x, y } => write_into_formatter(
-        Some((x.to_upper_hex_be(), y.to_upper_hex_be())),
-        f,
-      ),
+      AffinePoint::Point { x, y } => write_into_formatter(Some((x.to_upper_hex_be(), y.to_upper_hex_be())), f),
       AffinePoint::Infinity => write_into_formatter(None, f),
     }
   }
@@ -208,10 +199,7 @@ impl<'a, T : GFArithmetic<'a>> fmt::Binary for AffinePoint<T>
   {
     match self
     {
-      AffinePoint::Point { x, y } =>
-      {
-        write_into_formatter(Some((x.to_binary_be().to_string(), y.to_binary_be().to_string())), f)
-      }
+      AffinePoint::Point { x, y } => write_into_formatter(Some((x.to_binary_be().to_string(), y.to_binary_be().to_string())), f),
       AffinePoint::Infinity => write_into_formatter(None, f),
     }
   }

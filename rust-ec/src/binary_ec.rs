@@ -1,9 +1,10 @@
 use std::marker::PhantomData;
 use num_bigint::BigUint;
 use num_traits::{Num, One, Zero};
+use rand_core::CryptoRngCore;
 use poly_algebra::gf::{GFArithmetic, GF163, GF167, GF173, GF179, GF191, GF233, GF257, GF307, GF367, GF431};
 use crate::affine_point::AffinePoint;
-use crate::helpers::{pack_affine_point, unpack_affine_point};
+use crate::helpers::{generate_random_affine_point, pack_affine_point, unpack_affine_point};
 
 
 /// Koblitz elliptic curve over binary field that is represented by equation:
@@ -288,6 +289,12 @@ impl BinaryEC<GF431>
 
 impl<'a, T : GFArithmetic<'a>> BinaryEC<T>
 {
+  /// Function generates random point on the EC.
+  pub fn generate_random_affine_point(&self, rng : &mut impl CryptoRngCore) -> AffinePoint<T>
+  {
+    generate_random_affine_point(rng, self)
+  }
+
   /// Function gets `A` coefficient from certain EC variant.
   pub fn get_a(&self) -> ACoefficient<T> { self.a.clone() }
 

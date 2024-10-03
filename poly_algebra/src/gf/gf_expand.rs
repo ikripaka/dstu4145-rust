@@ -303,9 +303,7 @@ macro_rules! impl_gf_conversions {
 
     impl From<$tn> for BigUint
     {
-      fn from(value: $tn) -> Self {
-        value.poly
-      }
+      fn from(value : $tn) -> Self { value.poly }
     }
   };
 }

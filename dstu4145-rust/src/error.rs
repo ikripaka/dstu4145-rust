@@ -26,7 +26,5 @@ pub enum Dstu4145Error
 
 impl From<Dstu4145Error> for signature::Error
 {
-  fn from(value: Dstu4145Error) -> Self {
-    Error::from_source(value)
-  }
+  fn from(value : Dstu4145Error) -> Self { Error::from_source(value) }
 }

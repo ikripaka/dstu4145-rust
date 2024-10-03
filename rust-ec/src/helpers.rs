@@ -108,7 +108,7 @@ pub fn unpack_affine_point<'a, T : GFArithmetic<'a>>(num : &T, ec : &BinaryEC<T>
   AffinePoint::Point { x : x_p_field, y : y_p }
 }
 
-/// Function generates affine point by generating one point and solving quadratic equation.
+/// Function generates affine point by generating one point and solving quadratic equation according to the algorithm `6.8`.
 pub fn generate_random_affine_point<'a, T : GFArithmetic<'a>>(rng : &mut impl CryptoRngCore, ec : &BinaryEC<T>)
   -> AffinePoint<T>
 {

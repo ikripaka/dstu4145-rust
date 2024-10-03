@@ -15,7 +15,7 @@ mod property_tests
   const PROP_TEST_BIGUINT_BYTE_LEN : usize = 128;
   fn arb_byte_vec() -> impl Strategy<Value = Vec<u8>> { vec(any::<u8>(), 0 .. PROP_TEST_BIGUINT_BYTE_LEN) }
 
-  // Disclaimer: these tests are a little bit slow, you have to wait for a really long time to finish them.
+  // Disclaimer: these tests are a little bit slow, you have to wait for a really long time to finish them, but they work!
 
   // Signing with rng value
   proptest! {

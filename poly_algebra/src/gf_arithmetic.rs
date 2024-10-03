@@ -1,5 +1,5 @@
 use std::mem;
-use num_bigint::{ BigUint};
+use num_bigint::{BigUint};
 use num_traits::{One, Zero};
 
 /// Function that implements XORed addition of polynomials in binary field.

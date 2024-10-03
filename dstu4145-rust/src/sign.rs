@@ -14,6 +14,7 @@ use crate::error::Dstu4145Error;
 use crate::helpers::{calculate_presign, check_public_key_correctness, transform_field_poly_into_number};
 
 /// Struct saves signature info as output structure.
+/// It contains in itself $(r, s)$ values with $L_d$ parameter.
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct Signature
 {
@@ -23,6 +24,7 @@ pub struct Signature
 }
 
 /// Struct that characterize __Private key__ for making digital signature.
+/// It consists of saved EC, affine point $Q$ on the EC, $L_d$ parameter.
 #[derive(Clone, Eq, PartialEq, Hash)]
 pub struct VerifyingKey<T>
 {
@@ -31,6 +33,9 @@ pub struct VerifyingKey<T>
   l_d : u64,
 }
 
+/// Struct designed for restoring Verifying key from packed EC point
+/// It consists from packed value of affine point in the GF element, $L_d$ parameter and EC.
+#[derive(Clone, Eq, PartialEq, Hash)]
 pub struct VerifyingKeyConstructor<T>
 {
   pub ec : BinaryEC<T>,
@@ -39,6 +44,7 @@ pub struct VerifyingKeyConstructor<T>
 }
 
 /// Struct that characterize __Public key__ for checking digital signature.
+/// It consists from secred $d$ value with $L(n) - 1$ bit len, $L_d$ parameter and EC.
 #[derive(Clone, Eq, PartialEq, Hash)]
 pub struct SigningKey<T>
 {
@@ -195,7 +201,7 @@ impl<'a, T : GFArithmetic<'a>> SigningKey<T>
 
 impl Signature
 {
-  /// Function packs signature into bytes according to the algorithm ``.
+  /// Function packs signature into bytes according to the algorithm `5.10`.
   pub fn pack(&self) -> Vec<u8>
   {
     let element_size = ((self.l_d >> 1) / 8) as usize;
