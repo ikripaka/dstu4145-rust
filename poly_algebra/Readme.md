@@ -1,4 +1,4 @@
-## PolyAlgebra 
+## PolyAlgebra
 
 Binary field integer arithmetic with usage of `BigUint` from `num-bigint`.
 Provides specific implementation of binary Galois Fields for [DSTU 4145-2002][1] standard.
@@ -6,9 +6,9 @@ Common numerical operations for Galois fields are overloaded, so we can treat th
 
 ## Overview
 
-This module is dedicated to the usage with the [DSTU 4145-2002][1] signing algorithm that is using arithmetic over binary field. Needless to note that standart you can find by this [link](https://www.ksv.biz.ua/GOST/DSTY_ALL/DSTU2/dstu_4145-2002.pdf) or internally in [repository](../assets/dstu_4145-2002.pdf) for archiving purposes.
+This module is dedicated to the usage of the [DSTU 4145-2002][1] signing algorithm that is using arithmetic over binary field. Needless to note that standard you can find by this [link](https://www.ksv.biz.ua/GOST/DSTY_ALL/DSTU2/dstu_4145-2002.pdf) or internally in [repository](../assets/dstu_4145-2002.pdf) for archiving purposes.
 
-There are types that are implemented as unsigned integers in Galois Binary Field (GF 2^m) with usage of the [recommended](https://zakon.rada.gov.ua/laws/show/z1399-12#n4) by Ukrainian government prime polynomials.
+There are types that are implemented as unsigned integers in Galois Binary Field (GF 2^m) with the usage of the [recommended][2] by Ukrainian government prime polynomials.
 * `GF163` - GF `2^163` over prime polynomial `x^163 + x^7 + x^6 + x^3 + 1`.
 * `GF167` - GF `2^167` over prime polynomial `x^167 + x^6 + 1`.
 * `GF173` - GF `2^173` over prime polynomial `x^173 + x^10 + x^2 + x + 1`.
@@ -20,7 +20,7 @@ There are types that are implemented as unsigned integers in Galois Binary Field
 * `GF367` - GF `2^367` over prime polynomial `x^367 + x^21 + 1`.
 * `GF431` - GF `2^431` over prime polynomial `x^431 + x^5 + x^3 + x + 1`.
 
-## Example 
+## Example
 ```rust
 
 use num_bigint::ParseBigIntError;
@@ -44,7 +44,7 @@ assert_eq!(a * b, GF257::one());
 
 ## Adding to your project
 
-* From git: 
+* From git:
 ```toml
 [dependencies]
 poly_algebra = { git = "https://github.com/ikripaka/dstu4145-rust/"}
@@ -61,3 +61,4 @@ num-bigint = "0.4.6"
 ```
 
 [1]: https://www.ksv.biz.ua/GOST/DSTY_ALL/DSTU2/dstu_4145-2002.pdf
+[2]: https://zakon.rada.gov.ua/laws/show/z1399-12#n4

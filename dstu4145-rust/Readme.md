@@ -1,17 +1,17 @@
 ## dstu4145-rust
 
-[DSTU 4145-2002][1] rust implementation. Provides interface for signing and verifying signatures with help of `signature` crate. Common logic of packing signature & points are implemented.
+[DSTU 4145-2002][1] rust implementation. Provides interface for signing and verifying signatures with the help of `signature` crate. Common logic of packing signature & points are implemented.
 
 ## Overview
 
-This module implements signing and verification of specific [DSTU 4145-2002][1] signatures. 
+This module implements the signing and verification of specific [DSTU 4145-2002][1] signatures.
 
-_Why specific?_ By default, it uses SHA3-512 signature for signing, but with `sign_digest()` you can use any available digest generating algorithm, even original one [GOST R 34.11-94](https://github.com/RustCrypto/hashes/tree/master/gost94). 
+_Why specific?_ By default, it uses SHA3-512 signature for signing, but with `sign_digest()` you can use any available digest generating algorithm, even the original one [GOST R 34.11-94](https://github.com/RustCrypto/hashes/tree/master/gost94).
 
 Furthermore, you'll have another question, _do this implementation secure?_
-Yes, The parameters were taken from government granted [parameters](https://zakon.rada.gov.ua/laws/show/z1399-12#n4).
+Yes, The parameters were taken from government-granted [parameters](https://zakon.rada.gov.ua/laws/show/z1399-12#n4).
 
-Needless to note that, this implementation isn't ideal and by now only suit for academic research usage, because of not so efficient algorithms implemented, especially affine points calculation in EC (has to implement projective coordinates point calculation).
+Needless to note, this implementation isn't ideal and by now only suits for academic research usage, because of not so efficient algorithms implemented, especially affine points calculation in EC (has to implement projective coordinates point calculation).
 
 ## Example
 ```rust
@@ -24,7 +24,7 @@ Needless to note that, this implementation isn't ideal and by now only suit for 
 
 # fn main() -> dstu4145_rust::error::Result<()>
 # {
-  
+
 let mut plaintext = vec![0; 16];
 let mut rng = ChaCha20Rng::from_entropy();
 rng.fill_bytes(&mut plaintext);
