@@ -14,7 +14,7 @@
 #### Private key
 Number $d$ with length $L(n) - 1$;
 #### Public key
-Point on EC - $Q$, where $Q = dP$.
+Point on EC - $Q$, where $Q = -dP$.
 
 #### Signing 
 ##### Input
@@ -69,4 +69,4 @@ To sum up verifying algorithm we can say that it corresponds to the following st
 #### Application of this certain digital signature?
 * This type of digital signature is applied to the most of the providers of electronic trust services, customers, developers in Ukraine.
 * Truncating digital signature, as referred to this work: [link](https://ela.kpi.ua/items/996b943b-6a28-4a89-a351-88849b0318fc). Mainly for using in archiving purposes.
-* Moreover, you can find more interesting works on it by typing 'ДСТУ 4145-2002' in any search engine or, for example in student works repository in KPI, [link](https://ela.kpi.ua/home).
+* Moreover, you can find more interesting works on it by typing `ДСТУ 4145-2002` in any search engine or, for example in student works repository in KPI, [link](https://ela.kpi.ua/home).
