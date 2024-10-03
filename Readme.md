@@ -39,7 +39,7 @@ Examples of how to use the project can find in the crates documentation or in [e
 
 ## Digital signature scheme
 
-Actual implemented algorithm scheme is represented [here][4]. Necessary details can be found [here][4].
+Actual implemented algorithm scheme is represented [here][5]. Necessary details can be found [here][4].
 
 ## Future plans
 
@@ -49,7 +49,7 @@ With the passage of time, there are some plans to be done:
 * Find formulas for Koblitz projective coordinates points calculation.
 * Implement projective EC coordinates calculation.
 * Normal basis arithmetic calculation.
-* Implement full packing of Public Key and Parameters into ASN1 structs?.
+* ?Implement full packing of Public Key and Parameters into ASN1 structs?.
 
 ##### Link to the thesis if you're interested
 _Interesting fact that it is available [scheme for truncating][14] DSTU 4145-2002
