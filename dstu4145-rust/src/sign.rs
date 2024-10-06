@@ -254,6 +254,8 @@ impl<'a, T : GFArithmetic<'a>> VerifyingKey<T>
 {
   /// Function returns as output - packed public key `Q` into bytes.
   pub fn pack(&self) -> Vec<u8> { self.q.pack().get_value().to_bytes_be() }
+
+  pub fn get_pub_key(&self) -> AffinePoint<T> { self.q.clone() }
 }
 
 impl<'a, T : GFArithmetic<'a>> TryFrom<VerifyingKeyConstructor<T>> for VerifyingKey<T>
