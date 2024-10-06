@@ -131,6 +131,9 @@ impl<'a, T : GFArithmetic<'a>, D : Digest> DigestSigner<D, Signature> for Signin
 
 impl<'a, T : GFArithmetic<'a>> SigningKey<T>
 {
+  /// Function gets a copy of private key. Be careful in using of this command!
+  pub fn get_private_key(&self) -> BigUint { self.d.clone() }
+
   /// Function generates __Private key__ from PRNG.
   pub fn generate(rng : &mut impl CryptoRngCore, ec : BinaryEC<T>, l_d : u64) -> crate::error::Result<(Self, VerifyingKey<T>)>
   {
