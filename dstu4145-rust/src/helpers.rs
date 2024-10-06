@@ -39,7 +39,7 @@ pub fn check_public_key_correctness<'a, T : GFArithmetic<'a>>(
 ) -> crate::error::Result<AffinePoint<T>>
 {
   let decompressed_point = unpack_affine_point(compressed_p, ec);
-  if decompressed_point != AffinePoint::Infinity
+  if decompressed_point == AffinePoint::Infinity
   {
     return Err(Dstu4145Error::FailedPublicKeyCheck(
       "public key can't be a point at infinity".to_string(),

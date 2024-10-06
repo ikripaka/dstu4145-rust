@@ -250,6 +250,32 @@ impl TryFrom<&[u8]> for Signature
   }
 }
 
+/// This conversion gets as the input hex string that is divisible on 4 (in context of symbol length)
+impl TryFrom<&str> for Signature
+{
+  type Error = Dstu4145Error;
+
+  fn try_from(value : &str) -> Result<Self, Self::Error>
+  {
+    let len = value.chars().count();
+    if len % 4 != 0
+    {
+      return Err(Dstu4145Error::InvalidLDLength(
+        "has to be divisible on 16".to_string(),
+        len as u64 * 8,
+      ));
+    }
+    let bytes = value.as_bytes()
+            .chunks(2) // Take two characters at a time
+            .map(|chunk| {
+                let hex_str = std::str::from_utf8(chunk).unwrap(); // Convert to &str
+                u8::from_str_radix(hex_str, 16).unwrap() // Parse as base-16
+            })
+            .collect::<Vec<u8>>();
+    Signature::try_from(bytes.as_slice())
+  }
+}
+
 impl<'a, T : GFArithmetic<'a>> VerifyingKey<T>
 {
   /// Function returns as output - packed public key `Q` into bytes.
