@@ -1,0 +1,30 @@
+[package]
+name = "examples"
+version = "0.0.0"
+publish = false
+edition = "2021"
+
+[dev-dependencies]
+#dstu4145-rust = {git = "https://github.com/ikripaka/dstu4145-rust/"}
+#poly_algebra = { git = "https://github.com/ikripaka/dstu4145-rust/"}
+#rust-ec = { git = "https://github.com/ikripaka/dstu4145-rust/"}
+dstu4145-rust = {path = "../dstu4145-rust/"}
+poly_algebra = { path = "../poly_algebra"}
+rust-ec = { path = "../rust-ec"}
+num-traits = "0.2"
+num-bigint = "0.4.6"
+rand_chacha = "0.3.1"
+sha3 = "0.10.8"
+signature = { version = "2.2.0", features = ["rand_core", "digest", "std"] }
+
+[[example]]
+name = "ec-mul"
+path = "ec-mul.rs"
+
+[[example]]
+name = "galois-field-interaction"
+path = "gf-interaction.rs"
+
+[[example]]
+name = "signture-types"
+path = "sign-types.rs"

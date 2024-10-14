@@ -1,0 +1,20 @@
+[package]
+name = "poly_algebra"
+version = "0.1.0"
+edition = "2021"
+description = "Rust-native binary Galois field"
+readme = "Readme.md"
+rust-version = "1.81.0"
+authors = ["Illia Kripaka"]
+repository = "https://github.com/ikripaka/dstu4145-rust/poly-algebra"
+keywords = ["cryptography", "dstu4145", "binary-galois-field", "galois-field"]
+categories = ["cryptography"]
+
+[dependencies]
+num-traits.workspace = true
+num-bigint.workspace = true
+rand_core.workspace = true
+
+[dev-dependencies]
+rand_chacha.workspace = true
+proptest.workspace = true
